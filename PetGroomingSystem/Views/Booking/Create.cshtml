@@ -1,0 +1,43 @@
+﻿@model PetGroomingSystem.ViewModels.AppointmentBookingVM
+
+<h2 class="mb-4">Book a Pet Grooming Appointment</h2>
+
+<form asp-action="Create" method="post" class="col-md-6">
+    <div class="mb-3">
+        <label asp-for="ServiceId" class="form-label">Select Service</label>
+        <select asp-for="ServiceId" asp-items="ViewBag.ServicesList" class="form-select">
+            <option value="">-- Choose Service --</option>
+        </select>
+        <span asp-validation-for="ServiceId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="AppointmentDate" class="form-label">Date</label>
+        <input asp-for="AppointmentDate" class="form-control" type="date" />
+        <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="TimeSlot" class="form-label">Time Slot</label>
+        <select asp-for="TimeSlot" class="form-select">
+            <option value="">-- Choose Time --</option>
+            <option value="10:00 AM">10:00 AM</option>
+            <option value="01:00 PM">01:00 PM</option>
+            <option value="04:00 PM">04:00 PM</option>
+        </select>
+        <span asp-validation-for="TimeSlot" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SpecialRequests" class="form-label">Special Requests</label>
+        <textarea asp-for="SpecialRequests" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="SpecialRequests" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Submit Booking</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
