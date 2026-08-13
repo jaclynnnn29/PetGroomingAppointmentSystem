@@ -1,0 +1,46 @@
+@model IEnumerable<PetGroomingSystem.Models.Appointment>
+
+@{
+    ViewData["Title"] = "My Appointments";
+}
+
+<h2 class="mb-4">My Appointments</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        You have no upcoming grooming appointments. <a asp-action="Create" class="alert-link">Book one now!</a>
+    </div>
+}
+else
+{
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Booking ID</th>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Time Slot</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>#@item.Id</td>
+                    <td>@item.GroomingService?.Name</td>
+                    <td>@item.Date.ToString("yyyy-MM-dd")</td>
+                    <td>@item.TimeSlot</td>
+                    <td>
+                        <span class="badge bg-success">@item.Status</span>
+                    </td>
+                    <td>
+                        <a asp-action="AppointmentDetail" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

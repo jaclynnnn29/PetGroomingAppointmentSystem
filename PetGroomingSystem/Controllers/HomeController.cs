@@ -1,25 +1,43 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using PetGroomingSystem.Models;
-using System.Diagnostics;
 
-namespace PetGroomingSystem.Controllers
+namespace PetGroomingSystem.Controllers;
+
+public class HomeController(ApplicationDbContext db) : Controller
 {
-    public class HomeController : Controller
+    // GET: Home/Index 
+    public IActionResult Index()
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
+        // Fetch up to 3 services to feature on the homepage hero section
+        var featuredServices = db.GroomingServices.Take(3).ToList();
+        return View(featuredServices);
+    }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+    // GET: Home/About
+    public IActionResult About()
+    {
+        ViewData["Title"] = "About Us";
+        return View();
+    }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+    // GET: Home/Contact
+    public IActionResult Contact()
+    {
+        ViewData["Title"] = "Contact & Operating Hours";
+        return View();
+    }
+
+    // GET: Home/Privacy
+    public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    // GET: Home/Error
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

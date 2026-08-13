@@ -18,3 +18,15 @@ public class AppointmentBookingVM
     [StringLength(250, ErrorMessage = "Special requests cannot exceed 250 characters.")]
     public string? SpecialRequests { get; set; }
 }
+
+public class FutureDateAttribute : ValidationAttribute
+{
+    public override bool IsValid(object? value)
+    {
+        if (value is DateTime dateValue)
+        {
+            return dateValue.Date >= DateTime.Today;
+        }
+        return false;
+    }
+}

@@ -1,8 +1,44 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<PetGroomingSystem.Models.GroomingService>
+
+@{
+    ViewData["Title"] = "Welcome to Pet Paradise Grooming";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Hero Section -->
+<div class="p-5 mb-4 bg-light rounded-3 shadow-sm border text-center">
+    <div class="container-fluid py-4">
+        <h1 class="display-4 fw-bold text-primary">Pamper Your Pet Today! 🐾</h1>
+        <p class="col-md-8 fs-4 mx-auto text-muted">
+            Professional grooming services tailored for dogs and cats. Book your appointment online in just a few clicks.
+        </p>
+        <a asp-controller="Booking" asp-action="Create" class="btn btn-primary btn-lg px-4 me-md-2">Book an Appointment Now</a>
+        <a asp-controller="Booking" asp-action="Index" class="btn btn-outline-secondary btn-lg px-4">View All Services</a>
+    </div>
+</div>
+
+<!-- Featured Services Section -->
+<div class="container my-5">
+    <h3 class="text-center mb-4">Our Popular Services</h3>
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var service in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">@service.Name</h5>
+                            <p class="card-text text-muted">@service.Description</p>
+                            <h6 class="text-success fw-bold">RM @service.Price.ToString("F2")</h6>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 pb-3">
+                            <a asp-controller="Booking" asp-action="Create" asp-route-serviceId="@service.Id" class="btn btn-sm btn-outline-primary w-100">
+                                Select Service
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
 </div>

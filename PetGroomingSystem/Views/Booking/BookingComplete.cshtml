@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "Booking Confirmed";
+}
+
+<div class="text-center py-5">
+    <div class="card shadow p-4 mx-auto" style="max-width: 500px;">
+        <h2 class="text-success mb-3">🎉 Booking Confirmed!</h2>
+        <p class="fs-5">Thank you for choosing our grooming service.</p>
+        <p class="text-muted">Your Appointment ID is <strong>#@ViewBag.Id</strong>.</p>
+        
+        <div class="mt-4">
+            <a asp-action="Appointments" class="btn btn-primary me-2">View My Appointments</a>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Back to Home</a>
+        </div>
+    </div>
+</div>
