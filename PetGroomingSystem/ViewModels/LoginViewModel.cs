@@ -4,17 +4,12 @@ namespace PetGroomingSystem.ViewModels
 {
     public class LoginViewModel
     {
-        [Required]
-        [EmailAddress]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Please enter a valid email.")]
+        public string Email { get; set; } = "";
 
-        [Required]
+        [Required(ErrorMessage = "Password is required.")]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
-        public string Password { get; set; }
-
-        [Display(Name = "Remember Me")]
-        public bool RememberMe { get; set; }
+        public string Password { get; set; } = "";
     }
 }

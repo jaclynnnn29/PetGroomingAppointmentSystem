@@ -97,6 +97,114 @@ namespace PetGroomingSystem.Controllers
             return View();
         }
 
+        // =========================
+        // LOGIN
+        // =========================
+
+        // POST: /Account/Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Login(LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var member = _context.Members
+                .FirstOrDefault(m => m.Email == model.Email);
+
+            // Email not found
+            if (member == null)
+            {
+                ModelState.AddModelError("", "Invalid email or password.");
+                return View(model);
+            }
+
+            // Check whether account is temporarily locked
+            if (member.LockedUntil.HasValue &&
+                member.LockedUntil.Value > DateTime.Now)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Your account is temporarily locked. Please try again later."
+                );
+
+                return View(model);
+            }
+
+            // Verify password
+            var result = _passwordHasher.VerifyHashedPassword(
+                member,
+                member.PasswordHash,
+                model.Password
+            );
+
+            if (result == PasswordVerificationResult.Failed)
+            {
+                member.FailedLoginAttempts++;
+
+                // Lock after 3 failed attempts
+                if (member.FailedLoginAttempts >= 3)
+                {
+                    member.LockedUntil = DateTime.Now.AddMinutes(1);
+                    member.FailedLoginAttempts = 0;
+
+                    _context.SaveChanges();
+
+                    ModelState.AddModelError(
+                        "",
+                        "Too many failed attempts. Your account is locked for 5 minutes."
+                    );
+
+                    return View(model);
+                }
+
+                _context.SaveChanges();
+
+                ModelState.AddModelError(
+                    "",
+                    $"Invalid email or password. Failed attempts: {member.FailedLoginAttempts}/3"
+                );
+
+                return View(model);
+            }
+
+            // Successful login
+            member.FailedLoginAttempts = 0;
+            member.LockedUntil = null;
+
+            _context.SaveChanges();
+
+            // Create authentication cookie
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, member.MemberID.ToString()),
+        new Claim(ClaimTypes.Name, member.Name),
+        new Claim(ClaimTypes.Email, member.Email),
+        new Claim(ClaimTypes.Role, member.Role)
+    };
+
+            var identity = new ClaimsIdentity(
+                claims,
+                "MyCookieAuth"
+            );
+
+            var principal = new ClaimsPrincipal(identity);
+
+            HttpContext.SignInAsync(
+                "MyCookieAuth",
+                principal
+            ).GetAwaiter().GetResult();
+
+            // Redirect according to role
+            if (member.Role == "Admin")
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
 
         // =========================
         // ACCESS DENIED
