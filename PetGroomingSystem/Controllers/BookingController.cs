@@ -30,30 +30,28 @@ public class BookingController(ApplicationDbContext db) : Controller
     // POST: Booking/Create (Processes Appointment - Replaces Checkout)
     [Authorize]
     [HttpPost]
-    public IActionResult Create(AppointmentBookingVM vm)
+    public IActionResult Create(BookingAppointmentVM vm)
     {
         if (ModelState.IsValid)
         {
-            // 1. Create [Appointment] record
             var appointment = new Appointment
             {
-                MemberEmail = User.Identity?.Name ?? "guest@example.com",
+                MemberEmail = User.Identity?.Name ?? "member@example.com",
                 GroomingServiceId = vm.ServiceId,
+                PetType = vm.PetType,
+                PetName = vm.PetName,
                 Date = DateOnly.FromDateTime(vm.AppointmentDate!.Value),
                 TimeSlot = vm.TimeSlot,
                 SpecialRequests = vm.SpecialRequests,
                 Status = "Confirmed"
             };
 
-            // 2. Save to database
             db.Appointments.Add(appointment);
             db.SaveChanges();
 
-            // 3. Redirect to completion screen
             return RedirectToAction("BookingComplete", new { id = appointment.Id });
         }
 
-        // Re-populate dropdown if validation fails
         ViewBag.ServicesList = new SelectList(db.GroomingServices, "Id", "Name", vm.ServiceId);
         return View(vm);
     }

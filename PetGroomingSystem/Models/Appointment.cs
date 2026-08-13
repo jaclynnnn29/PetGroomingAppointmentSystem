@@ -11,6 +11,12 @@ public class Appointment
     [Required, MaxLength(100)]
     public string MemberEmail { get; set; } = string.Empty;
 
+    [Required, MaxLength(10)]
+    public string PetType { get; set; } = "Dog"; 
+
+    [Required, MaxLength(50)]
+    public string PetName { get; set; } = string.Empty;
+
     [Required]
     public int GroomingServiceId { get; set; }
 

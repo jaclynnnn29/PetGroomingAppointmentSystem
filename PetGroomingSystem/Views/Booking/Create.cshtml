@@ -1,40 +1,69 @@
-﻿@model PetGroomingSystem.ViewModels.AppointmentBookingVM
+﻿@model PetGroomingSystem.ViewModels.BookingAppointmentVM
 
 <h2 class="mb-4">Book a Pet Grooming Appointment</h2>
 
 <form asp-action="Create" method="post" class="col-md-6">
+    <!-- Service Selection -->
     <div class="mb-3">
-        <label asp-for="ServiceId" class="form-label">Select Service</label>
+        <label asp-for="ServiceId" class="form-label fw-bold">Select Service</label>
         <select asp-for="ServiceId" asp-items="ViewBag.ServicesList" class="form-select">
             <option value="">-- Choose Service --</option>
         </select>
         <span asp-validation-for="ServiceId" class="text-danger"></span>
     </div>
 
+    <!-- Pet Type (Dog / Cat Only) -->
     <div class="mb-3">
-        <label asp-for="AppointmentDate" class="form-label">Date</label>
+        <label class="form-label fw-bold">Pet Type</label>
+        <div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" asp-for="PetType" value="Dog" id="petDog" checked>
+                <label class="form-check-label" for="petDog">🐶 Dog</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" asp-for="PetType" value="Cat" id="petCat">
+                <label class="form-check-label" for="petCat">🐱 Cat</label>
+            </div>
+        </div>
+        <span asp-validation-for="PetType" class="text-danger"></span>
+    </div>
+
+    <!-- Pet Name -->
+    <div class="mb-3">
+        <label asp-for="PetName" class="form-label fw-bold">Pet Name</label>
+        <input asp-for="PetName" class="form-control" placeholder="e.g., Buddy" />
+        <span asp-validation-for="PetName" class="text-danger"></span>
+    </div>
+
+    <!-- Date Selection -->
+    <div class="mb-3">
+        <label asp-for="AppointmentDate" class="form-label fw-bold">Appointment Date</label>
         <input asp-for="AppointmentDate" class="form-control" type="date" />
         <span asp-validation-for="AppointmentDate" class="text-danger"></span>
     </div>
 
+    <!-- Time Slot Selection -->
     <div class="mb-3">
-        <label asp-for="TimeSlot" class="form-label">Time Slot</label>
+        <label asp-for="TimeSlot" class="form-label fw-bold">Time Slot</label>
         <select asp-for="TimeSlot" class="form-select">
-            <option value="">-- Choose Time --</option>
+            <option value="">-- Choose Time Slot --</option>
             <option value="10:00 AM">10:00 AM</option>
-            <option value="01:00 PM">01:00 PM</option>
-            <option value="04:00 PM">04:00 PM</option>
+            <option value="11:30 AM">11:30 AM</option>
+            <option value="02:00 PM">02:00 PM</option>
+            <option value="03:30 PM">03:30 PM</option>
+            <option value="05:00 PM">05:00 PM</option>
         </select>
         <span asp-validation-for="TimeSlot" class="text-danger"></span>
     </div>
 
+    <!-- Special Requests -->
     <div class="mb-3">
-        <label asp-for="SpecialRequests" class="form-label">Special Requests</label>
-        <textarea asp-for="SpecialRequests" class="form-control" rows="3"></textarea>
+        <label asp-for="SpecialRequests" class="form-label fw-bold">Special Requests</label>
+        <textarea asp-for="SpecialRequests" class="form-control" rows="3" placeholder="Any specific requirements or notes for the groomer..."></textarea>
         <span asp-validation-for="SpecialRequests" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-success">Submit Booking</button>
+    <button type="submit" class="btn btn-primary">Confirm Booking</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
 
