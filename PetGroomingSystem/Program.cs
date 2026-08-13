@@ -41,17 +41,30 @@ app.MapControllerRoute(
 // Seed Database Safely
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var db = scope.ServiceProvider
+        .GetRequiredService<ApplicationDbContext>();
 
-    // Automatically creates the database and tables if they don't exist yet
-    db.Database.EnsureCreated();
+    // Apply migrations //
+    db.Database.Migrate();
 
     if (!db.GroomingServices.Any())
     {
         db.GroomingServices.AddRange(
-            new GroomingService { Name = "Basic Bath & Brush", Price = 50.00m, Description = "Includes bath, blow-dry, and nail trim." },
-            new GroomingService { Name = "Full Styling & Haircut", Price = 90.00m, Description = "Full hair cut, sanitary trim, and ear cleaning." }
+            new GroomingService
+            {
+                Name = "Basic Bath & Brush",
+                Price = 50.00m,
+                Description = "Includes bath, blow-dry, and nail trim."
+            },
+
+            new GroomingService
+            {
+                Name = "Full Styling & Haircut",
+                Price = 90.00m,
+                Description = "Full hair cut, sanitary trim, and ear cleaning."
+            }
         );
+
         db.SaveChanges();
     }
 }
