@@ -222,5 +222,101 @@ namespace PetGroomingSystem.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        // =========================
+        // UPLOAD PET PHOTO
+        // =========================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UploadPhoto(int petId, IFormFile photo)
+        {
+            var memberId = int.Parse(
+                User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value
+            );
+
+            // Check whether the pet belongs to the logged-in member
+            var pet = _context.Pets
+                .FirstOrDefault(p =>
+                    p.PetID == petId &&
+                    p.MemberID == memberId
+                );
+
+            if (pet == null)
+            {
+                return NotFound();
+            }
+
+            // Check whether a file was selected
+            if (photo == null || photo.Length == 0)
+            {
+                return RedirectToAction(
+                    nameof(Details),
+                    new { id = petId }
+                );
+            }
+
+            // Only allow image files
+            var allowedExtensions = new[]
+            {
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".gif"
+            };
+
+            var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                return RedirectToAction(
+                    nameof(Details),
+                    new { id = petId }
+                );
+            }
+
+            // Create upload folder
+            var uploadFolder = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "uploads",
+                "pets"
+            );
+
+            if (!Directory.Exists(uploadFolder))
+            {
+                Directory.CreateDirectory(uploadFolder);
+            }
+
+            // Generate unique file name
+            var fileName = Guid.NewGuid().ToString() + extension;
+
+            var filePath = Path.Combine(
+                uploadFolder,
+                fileName
+            );
+
+            // Save physical image file
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                photo.CopyTo(stream);
+            }
+
+            // Save photo information into database
+            var petPhoto = new PetPhoto
+            {
+                PetID = petId,
+                PhotoPath = "/uploads/pets/" + fileName
+            };
+
+            _context.PetPhotos.Add(petPhoto);
+            _context.SaveChanges();
+
+            return RedirectToAction(
+                nameof(Details),
+                new { id = petId }
+            );
+        }
+
     }
 }
