@@ -139,11 +139,11 @@ namespace PetGroomingSystem.Controllers
                 member.PasswordHash,
                 model.Password
             );
-
+            
             if (result == PasswordVerificationResult.Failed)
             {
                 member.FailedLoginAttempts++;
-
+                //
                 // Lock after 3 failed attempts
                 if (member.FailedLoginAttempts >= 3)
                 {
