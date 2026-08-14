@@ -38,7 +38,7 @@ namespace PetGroomingSystem.Models
 
         // Relationship with Member
         [ForeignKey("MemberID")]
-        public Member Member { get; set; }
+        public Member? Member { get; set; }
 
         // Multiple photos
         public ICollection<PetPhoto> Photos { get; set; } = new List<PetPhoto>();

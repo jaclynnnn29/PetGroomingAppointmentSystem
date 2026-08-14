@@ -80,14 +80,17 @@ namespace PetGroomingSystem.Controllers
                 User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value
             );
 
+            // Important:
+            // Do not allow users to choose another MemberID.
+            // Automatically assign pet to logged-in member
+            pet.MemberID = memberId;
+
             if (!ModelState.IsValid)
             {
                 return View(pet);
             }
 
-            // Important:
-            // Do not allow users to choose another MemberID.
-            pet.MemberID = memberId;
+            
 
             _context.Pets.Add(pet);
             _context.SaveChanges();
