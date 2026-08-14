@@ -1,5 +1,56 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model PetGroomingSystem.Models.Pet
+
 @{
+    ViewData["Title"] = "Delete Pet";
 }
+
+<h2>Delete Pet</h2>
+
+<div class="card mt-4" style="max-width: 600px;">
+    <div class="card-body">
+
+        <h4>Are you sure you want to delete this pet?</h4>
+
+        <hr />
+
+        <dl class="row">
+            <dt class="col-sm-4">Pet Name</dt>
+            <dd class="col-sm-8">@Model.PetName</dd>
+
+            <dt class="col-sm-4">Pet Type</dt>
+            <dd class="col-sm-8">@Model.PetType</dd>
+
+            <dt class="col-sm-4">Breed</dt>
+            <dd class="col-sm-8">@Model.Breed</dd>
+
+            <dt class="col-sm-4">Gender</dt>
+            <dd class="col-sm-8">@Model.Gender</dd>
+
+            <dt class="col-sm-4">Age</dt>
+            <dd class="col-sm-8">@Model.Age years</dd>
+
+            <dt class="col-sm-4">Weight</dt>
+            <dd class="col-sm-8">@Model.Weight kg</dd>
+
+            <dt class="col-sm-4">Medical Notes</dt>
+            <dd class="col-sm-8">@Model.MedicalNotes</dd>
+        </dl>
+
+        <form asp-action="Delete" method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="PetID" />
+
+            <button type="submit" class="btn btn-danger">
+                Yes, Delete
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+</div>
