@@ -38,22 +38,23 @@
     <!-- Date Selection -->
     <div class="mb-3">
         <label asp-for="AppointmentDate" class="form-label fw-bold">Appointment Date</label>
-        <input asp-for="AppointmentDate" class="form-control" type="date" />
+        <!-- We add id="AppointmentDate" so our JavaScript can detect when it changes -->
+        <input asp-for="AppointmentDate" id="AppointmentDate" class="form-control" type="date" />
         <span asp-validation-for="AppointmentDate" class="text-danger"></span>
     </div>
 
-    <!-- Time Slot Selection -->
+    <!-- Interactive Time Slot Selection -->
     <div class="mb-3">
-        <label asp-for="TimeSlot" class="form-label fw-bold">Time Slot</label>
-        <select asp-for="TimeSlot" class="form-select">
-            <option value="">-- Choose Time Slot --</option>
-            <option value="10:00 AM">10:00 AM</option>
-            <option value="11:30 AM">11:30 AM</option>
-            <option value="02:00 PM">02:00 PM</option>
-            <option value="03:30 PM">03:30 PM</option>
-            <option value="05:00 PM">05:00 PM</option>
-        </select>
-        <span asp-validation-for="TimeSlot" class="text-danger"></span>
+        <label class="form-label fw-bold">Available Time Slots</label>
+
+        <!-- This empty div is where our JavaScript will generate the buttons -->
+        <div id="timeSlotContainer" class="d-flex flex-wrap gap-2 mt-2">
+            <div class="alert alert-secondary w-100 text-center mb-0 py-2">
+                📅 Please select a date above to see available time slots.
+            </div>
+        </div>
+
+        <span asp-validation-for="TimeSlot" class="text-danger mt-2 d-block"></span>
     </div>
 
     <!-- Special Requests -->
@@ -69,4 +70,44 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+            // When the user changes the Date input...
+            $('#AppointmentDate').change(function () {
+                var selectedDate = $(this).val();
+                var container = $('#timeSlotContainer');
+
+                if (!selectedDate) {
+                    container.html('<div class="alert alert-secondary w-100 text-center mb-0 py-2">📅 Please select a date above to see available time slots.</div>');
+                    return;
+                }
+
+                container.html('<div class="text-muted">Searching for available slots...</div>');
+
+                // Call our controller method
+                $.get('/Booking/GetAvailableTimeSlots', { date: selectedDate }, function (slots) {
+                    container.empty();
+
+                    if (slots.length === 0) {
+                        container.html('<div class="alert alert-danger w-100 text-center mb-0 py-2">No available slots for this date. Please pick another day.</div>');
+                        return;
+                    }
+
+                    // Loop through available slots and generate clickable buttons
+                    $.each(slots, function (index, slot) {
+                        var safeId = slot.replace(/[: ]/g, ''); // Removes spaces/colons for HTML IDs
+
+                        var html = `
+                            <div>
+                                <input type="radio" class="btn-check" name="TimeSlot" id="slot_${safeId}" value="${slot}" required>
+                                <label class="btn btn-outline-primary px-4" for="slot_${safeId}">${slot}</label>
+                            </div>
+                        `;
+                        container.append(html);
+                    });
+                });
+            });
+        });
+    </script>
 }

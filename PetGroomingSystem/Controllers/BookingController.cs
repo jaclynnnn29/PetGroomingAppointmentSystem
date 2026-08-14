@@ -56,6 +56,35 @@ public class BookingController(ApplicationDbContext db) : Controller
         return View(vm);
     }
 
+    // ==========================================
+    // AJAX: Get Available Time Slots
+    // ==========================================
+    [HttpGet]
+    public IActionResult GetAvailableTimeSlots(string date)
+    {
+        if (!DateTime.TryParse(date, out DateTime selectedDate))
+            return Json(new List<string>());
+
+        var dateOnly = DateOnly.FromDateTime(selectedDate);
+
+        // 1. Define all possible shop operating hours
+        var allSlots = new List<string>
+        {
+            "10:00 AM", "11:30 AM", "02:00 PM", "03:30 PM", "05:00 PM"
+        };
+
+        // 2. Query the database to see which slots are already taken on this date
+        var bookedSlots = db.Appointments
+            .Where(a => a.Date == dateOnly && a.Status != "Cancelled")
+            .Select(a => a.TimeSlot)
+            .ToList();
+
+        // 3. Remove the booked slots from the available list
+        var availableSlots = allSlots.Except(bookedSlots).ToList();
+
+        return Json(availableSlots);
+    }
+
     // GET: Booking/BookingComplete (Replaces OrderComplete)
     [Authorize]
     public IActionResult BookingComplete(int id)
