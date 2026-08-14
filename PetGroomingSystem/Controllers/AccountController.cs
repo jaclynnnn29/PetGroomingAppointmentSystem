@@ -127,7 +127,7 @@ namespace PetGroomingSystem.Controllers
             {
                 ModelState.AddModelError(
                     "",
-                    "Your account is temporarily locked. Please try again later."
+                    "Your account is temporarily locked. Please try again after 1 minute."
                 );
 
                 return View(model);
@@ -143,7 +143,7 @@ namespace PetGroomingSystem.Controllers
             if (result == PasswordVerificationResult.Failed)
             {
                 member.FailedLoginAttempts++;
-                //
+                
                 // Lock after 3 failed attempts
                 if (member.FailedLoginAttempts >= 3)
                 {
@@ -154,7 +154,7 @@ namespace PetGroomingSystem.Controllers
 
                     ModelState.AddModelError(
                         "",
-                        "Too many failed attempts. Your account is locked for 1 minutes."
+                        "Too many failed attempts. Your account is locked for 1 minute."
                     );
 
                     return View(model);
@@ -178,12 +178,13 @@ namespace PetGroomingSystem.Controllers
 
             // Create authentication cookie
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.NameIdentifier, member.MemberID.ToString()),
-        new Claim(ClaimTypes.Name, member.Name),
-        new Claim(ClaimTypes.Email, member.Email),
-        new Claim(ClaimTypes.Role, member.Role)
-    };
+            {
+                new Claim(ClaimTypes.NameIdentifier, member.MemberID.ToString()),
+                new Claim(ClaimTypes.Name, member.Name),
+                new Claim(ClaimTypes.Email, member.Email),
+                new Claim(ClaimTypes.Role, member.Role),
+                new Claim("FullName", member.Name)          //Display full name
+            };
 
             var identity = new ClaimsIdentity(
                 claims,
