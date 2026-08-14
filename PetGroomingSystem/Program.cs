@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using PetGroomingSystem.Models;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +48,30 @@ using (var scope = app.Services.CreateScope())
     // Apply migrations automatically
     db.Database.Migrate();
 
+    // Seed Admin Account
+    if (!db.Members.Any(m => m.Email == "admin@petgrooming.com"))
+    {
+        var admin = new Member
+        {
+            Name = "System Admin",
+            Email = "admin@petgrooming.com",
+            Phone = "0123456789",
+            Role = "Admin",
+            FailedLoginAttempts = 0,
+            LockedUntil = null
+        };
+
+        var passwordHasher = new PasswordHasher<Member>();
+
+        admin.PasswordHash = passwordHasher.HashPassword(
+            admin,
+            "Admin123!"
+        );
+
+        db.Members.Add(admin);
+        db.SaveChanges();
+    }
+
     if (!db.GroomingServices.Any())
     {
         db.GroomingServices.AddRange(
@@ -66,6 +91,9 @@ using (var scope = app.Services.CreateScope())
 
         db.SaveChanges();
     }
+
+    
+
 }
 
 app.Run();
