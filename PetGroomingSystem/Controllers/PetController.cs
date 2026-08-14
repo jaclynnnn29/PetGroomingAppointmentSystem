@@ -262,7 +262,8 @@ namespace PetGroomingSystem.Controllers
                 ".jpg",
                 ".jpeg",
                 ".png",
-                ".gif"
+                ".gif",
+                ".webp"
             };
 
             var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
