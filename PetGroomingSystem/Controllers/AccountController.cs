@@ -193,9 +193,19 @@ namespace PetGroomingSystem.Controllers
 
             var principal = new ClaimsPrincipal(identity);
 
+            //Remember Me
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = model.RememberMe,
+                ExpiresUtc = model.RememberMe
+                    ? DateTimeOffset.UtcNow.AddDays(7)
+                    : DateTimeOffset.UtcNow.AddHours(1)
+            };
+
             HttpContext.SignInAsync(
                 "MyCookieAuth",
-                principal
+                principal,
+                authProperties
             ).GetAwaiter().GetResult();
 
             // Redirect according to role
@@ -205,6 +215,21 @@ namespace PetGroomingSystem.Controllers
             }
 
             return RedirectToAction("Index", "Home");
+        }
+
+        // =========================
+        // LOGOUT
+        // =========================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Logout()
+        {
+            HttpContext.SignOutAsync("MyCookieAuth")
+                .GetAwaiter()
+                .GetResult();
+
+            return RedirectToAction("Login", "Account");
         }
 
         // =========================
