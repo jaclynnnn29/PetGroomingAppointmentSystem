@@ -19,7 +19,7 @@ namespace PetGroomingSystem.Controllers
         // VIEW MY PETS
         // =========================
 
-        public IActionResult Index()
+        public IActionResult Index(string search)
         {
             var memberId = int.Parse(
                 User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value
@@ -28,9 +28,22 @@ namespace PetGroomingSystem.Controllers
             var pets = _context.Pets
                 .Where(p => p.MemberID == memberId)
                 .Include(p => p.Photos)
-                .ToList();
+                .AsQueryable();
 
-            return View(pets);
+            // Search by pet name
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                // Case-insensitive search
+                search = search.Trim().ToLower();
+
+                pets = pets.Where(p =>
+                    p.PetName.Contains(search)
+                );
+            }
+
+            ViewBag.Search = search;
+
+            return View(pets.ToList());
         }
 
         // =========================
