@@ -1,5 +1,20 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@inject PetGroomingSystem.Models.ApplicationDbContext DbContext
+
+@{
+    var currentTheme = "light";
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+        var member = DbContext.Members.FirstOrDefault(m => m.Email == email);
+        if (!string.IsNullOrEmpty(member?.PreferredTheme))
+        {
+            currentTheme = member.PreferredTheme;
+        }
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="@currentTheme">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -48,6 +63,13 @@
                             <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
 
+                        @* 3. NEW: Add Dark Mode toggle button *@
+                        <li class="nav-item ms-auto">
+                            <button id="darkModeToggle" type="button" class="btn btn-sm btn-outline-secondary rounded-pill nav-link px-2">
+                                @(currentTheme == "dark" ? "☀️ Light Mode" : "🌙 Dark Mode")
+                            </button>
+                        </li>
+
                         @if (User.Identity?.IsAuthenticated != true)
                         {
                             <li class="nav-item">
@@ -69,6 +91,13 @@
 
                         @if (User.Identity?.IsAuthenticated == true)
                         {
+                            @* 4. NEW: Add username greeting before Logout *@
+                            <li class="nav-item">
+                                <span class="nav-link text-primary fw-bold">
+                                    👋 Hello, @(User.FindFirst("FullName")?.Value ?? User.Identity?.Name)!
+                                </span>
+                            </li>
+
                             <form asp-controller="Account"
                                   asp-action="Logout"
                                   method="post"
@@ -105,6 +134,30 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @* 5. NEW: Add Theme toggle script before </body> *@
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleBtn = document.getElementById("darkModeToggle");
+            const htmlElement = document.documentElement;
+            if (!toggleBtn) return;
+
+            toggleBtn.addEventListener("click", function () {
+                const isDark = htmlElement.getAttribute("data-bs-theme") === "dark";
+                const newTheme = isDark ? "light" : "dark";
+
+                htmlElement.setAttribute("data-bs-theme", newTheme);
+                toggleBtn.innerHTML = newTheme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
+
+                fetch('/Account/SavePreferences', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `theme=${encodeURIComponent(newTheme)}`
+                });
+            });
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
