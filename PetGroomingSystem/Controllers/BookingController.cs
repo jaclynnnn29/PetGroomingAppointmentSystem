@@ -117,7 +117,7 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
     [Authorize]
     public IActionResult Appointments()
     {
-        var email = User.Identity?.Name ?? "";
+        var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
         var m = db.Appointments
                   .Include(a => a.GroomingService)
                   .Where(a => a.MemberEmail == email)

@@ -4,6 +4,11 @@
     ViewData["Title"] = "My Appointments";
 }
 
+<div class="alert alert-warning">
+    <strong>Debug Info:</strong> The system is currently searching for appointments belonging to this email:
+    <span class="text-danger">@User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value</span>
+</div>
+
 <h2 class="mb-4">My Appointments</h2>
 
 @if (!Model.Any())
