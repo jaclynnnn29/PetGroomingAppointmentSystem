@@ -83,7 +83,7 @@
                     return;
                 }
 
-                container.html('<div class="text-muted">Searching for available slots...</div>');
+                container.html('<div class="text-body-secondary">Searching for available slots...</div>');
 
                 // Call our controller method
                 $.get('/Booking/GetAvailableTimeSlots', { date: selectedDate }, function (slots) {

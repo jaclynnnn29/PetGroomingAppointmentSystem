@@ -25,7 +25,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-body border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand fw-bold text-primary" asp-controller="Home" asp-action="Index">🐾 PetGroomingSystem</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -35,23 +35,23 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-body" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Booking" asp-action="Index">Services</a>
+                            <a class="nav-link text-body" asp-controller="Booking" asp-action="Index">Services</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Booking" asp-action="Create">Book Appointment</a>
+                            <a class="nav-link text-body" asp-controller="Booking" asp-action="Create">Book Appointment</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Booking" asp-action="Appointments">My Appointments</a>
+                            <a class="nav-link text-body" asp-controller="Booking" asp-action="Appointments">My Appointments</a>
                         </li>
 
                        
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
+                                <a class="nav-link text-body"
                                    asp-controller="Pet"
                                    asp-action="Index">
                                     My Pets
@@ -60,7 +60,7 @@
                         }
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-body" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
 
                         @* 3. NEW: Add Dark Mode toggle button *@
@@ -73,7 +73,7 @@
                         @if (User.Identity?.IsAuthenticated != true)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
+                                <a class="nav-link text-body"
                                    asp-controller="Account"
                                    asp-action="Login">
                                     Login
@@ -81,7 +81,7 @@
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
+                                <a class="nav-link text-body"
                                    asp-controller="Account"
                                    asp-action="Register">
                                     Register
@@ -125,7 +125,7 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted mt-auto py-3 bg-light">
+    <footer class="border-top footer text-body-secondary mt-auto py-3">
         <div class="container text-center">
             &copy; 2026 - PetGroomingSystem - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>

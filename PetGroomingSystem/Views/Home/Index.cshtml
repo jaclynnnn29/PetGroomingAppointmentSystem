@@ -5,10 +5,11 @@
 }
 
 <!-- Hero Section -->
-<div class="p-5 mb-4 bg-light rounded-3 shadow-sm border text-center">
+<div class="p-5 mb-4 bg-body-tertiary rounded-3 shadow-sm border text-center">
     <div class="container-fluid py-4">
         <h1 class="display-4 fw-bold text-primary">Welcome To Teddy Pet Grooming! 🐾</h1>
-        <p class="col-md-8 fs-4 mx-auto text-muted">
+        <!-- Changed text-muted to text-body-secondary -->
+        <p class="col-md-8 fs-4 mx-auto text-body-secondary">
             Professional grooming services tailored for dogs and cats. Book your appointment right now.
         </p>
         <a asp-controller="Booking" asp-action="Create" class="btn btn-primary btn-lg px-4 me-md-2">Book an Appointment Now</a>
@@ -28,7 +29,8 @@
                     <div class="card h-100 shadow-sm">
                         <div class="card-body">
                             <h5 class="card-title text-primary">@service.Name</h5>
-                            <p class="card-text text-muted">@service.Description</p>
+                            <!-- Changed text-muted to text-body-secondary -->
+                            <p class="card-text text-body-secondary">@service.Description</p>
                             <h6 class="text-success fw-bold">RM @service.Price.ToString("F2")</h6>
                         </div>
                         <div class="card-footer bg-transparent border-0 pb-3">
