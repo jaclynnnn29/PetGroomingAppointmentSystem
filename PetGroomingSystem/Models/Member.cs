@@ -34,6 +34,10 @@ namespace PetGroomingSystem.Models
 
         // Navigation property
         public ICollection<Pet> Pets { get; set; } = new List<Pet>();
+
+        public string PreferredTheme { get; set; } = "Light";
+
+        public string NavOrder { get; set; } = "Home,Services,Book Appointments,My Appointments,My Pets";
     }
 }
 
