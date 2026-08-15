@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PetGroomingSystem.Models;
+using PetGroomingSystem.Services;
 using PetGroomingSystem.ViewModels;
 using System.Security.Claims;
 
@@ -12,11 +13,13 @@ namespace PetGroomingSystem.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly PasswordHasher<Member> _passwordHasher;
+        private readonly EmailService _emailService;
 
-        public AccountController(ApplicationDbContext context)
+        public AccountController(ApplicationDbContext context, EmailService emailService)
         {
             _context = context;
             _passwordHasher = new PasswordHasher<Member>();
+            _emailService = emailService; // <-- 3. Assign here
         }
 
         // =========================
@@ -311,6 +314,82 @@ namespace PetGroomingSystem.Controllers
             }
 
             return BadRequest();
+        }
+
+        // GET: /Account/ForgotPassword
+        [HttpGet]
+        public IActionResult ForgotPassword() => View();
+
+        // POST: /Account/ForgotPassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                ModelState.AddModelError("", "Please enter your email.");
+                return View();
+            }
+
+            var member = _context.Members.FirstOrDefault(m => m.Email == email);
+            if (member != null)
+            {
+                // 1. Generate secure token & 15-minute expiration
+                string token = Guid.NewGuid().ToString();
+                member.ResetToken = token;
+                member.ResetTokenExpiry = DateTime.Now.AddMinutes(15);
+                _context.SaveChanges();
+
+                // 2. Build reset link
+                var resetLink = Url.Action("ResetPassword", "Account", new { token, email = member.Email }, Request.Scheme);
+
+                // 3. Send email via your EmailService
+                string body = $"Click here to reset your password: <a href='{resetLink}'>Reset Password</a>";
+                await _emailService.SendEmailAsync(member.Email, "Reset Password", body);
+            }
+
+            // Always show generic message to avoid exposing registered emails
+            ViewBag.Message = "If your email exists in our system, a password reset link has been sent.";
+            return View();
+        }
+
+        // GET: /Account/ResetPassword
+        [HttpGet]
+        public IActionResult ResetPassword(string token, string email)
+        {
+            var member = _context.Members.FirstOrDefault(m => m.Email == email && m.ResetToken == token);
+
+            if (member == null || !member.ResetTokenExpiry.HasValue || member.ResetTokenExpiry.Value < DateTime.Now)
+            {
+                return View("Error"); // Invalid or expired token
+            }
+
+            ViewBag.Token = token;
+            ViewBag.Email = email;
+            return View();
+        }
+
+        // POST: /Account/ResetPassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ResetPassword(string token, string email, string newPassword)
+        {
+            var member = _context.Members.FirstOrDefault(m => m.Email == email && m.ResetToken == token);
+
+            if (member == null || !member.ResetTokenExpiry.HasValue || member.ResetTokenExpiry.Value < DateTime.Now)
+            {
+                ModelState.AddModelError("", "Invalid or expired reset token.");
+                return View();
+            }
+
+            // Hash the new password and clear the reset token
+            member.PasswordHash = _passwordHasher.HashPassword(member, newPassword);
+            member.ResetToken = null;
+            member.ResetTokenExpiry = null;
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "Password reset successful! You can now log in with your new password.";
+            return RedirectToAction("Login");
         }
     } 
 } 

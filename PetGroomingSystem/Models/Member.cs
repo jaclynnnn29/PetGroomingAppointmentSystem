@@ -38,6 +38,9 @@ namespace PetGroomingSystem.Models
         public string PreferredTheme { get; set; } = "Light";
 
         public string NavOrder { get; set; } = "Home,Services,Book Appointments,My Appointments,My Pets";
+
+        public string? ResetToken { get; set; }
+        public DateTime? ResetTokenExpiry { get; set; }
     }
 }
 
