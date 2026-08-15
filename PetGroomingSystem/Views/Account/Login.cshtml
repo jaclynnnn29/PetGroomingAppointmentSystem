@@ -38,6 +38,23 @@
         </span>
     </div>
 
+    <!-- CAPTCHA -->
+    <div class="mb-3">
+
+        <label class="form-label">
+            @ViewData["CaptchaQuestion"]
+        </label>
+
+        <input asp-for="CaptchaUserAnswer"
+               class="form-control"
+               type="number" />
+
+        <span asp-validation-for="CaptchaUserAnswer"
+              class="text-danger">
+        </span>
+
+    </div>
+
     <div class="form-check mb-3">
         <input asp-for="RememberMe"
                class="form-check-input" />

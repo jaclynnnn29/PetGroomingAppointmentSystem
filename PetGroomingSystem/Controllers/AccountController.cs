@@ -94,6 +94,8 @@ namespace PetGroomingSystem.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            GenerateCaptcha();
+
             return View();
         }
 
@@ -106,6 +108,23 @@ namespace PetGroomingSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Login(LoginVM model)
         {
+
+            // =========================
+            // CHECK CAPTCHA
+            // =========================
+
+            var correctAnswer = TempData["CaptchaAnswer"];
+
+            if (correctAnswer == null ||
+                !int.TryParse(correctAnswer.ToString(), out int captchaAnswer) ||
+                model.CaptchaUserAnswer != captchaAnswer)
+            {
+                ModelState.AddModelError(
+                    "CaptchaUserAnswer",
+                    "Incorrect CAPTCHA answer."
+                );
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -215,6 +234,19 @@ namespace PetGroomingSystem.Controllers
             }
 
             return RedirectToAction("Index", "Home");
+        }
+
+        private void GenerateCaptcha()
+        {
+            var random = new Random();
+
+            int number1 = random.Next(1, 10);
+            int number2 = random.Next(1, 10);
+
+            TempData["CaptchaAnswer"] = number1 + number2;
+
+            ViewData["CaptchaQuestion"] =
+                $"What is {number1} + {number2}?";
         }
 
         // =========================
