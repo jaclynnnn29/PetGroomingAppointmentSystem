@@ -21,7 +21,13 @@ namespace PetGroomingSystem.Controllers
             return View();
         }
 
-        // Action: Manage Appointments
+        // Action: Manage Services
+        public async Task<IActionResult> Services()
+        {
+            var services = await _context.GroomingServices.ToListAsync();
+            return View(services);
+        }
+
         // Action: Manage Appointments
         public async Task<IActionResult> Appointments()
         {
