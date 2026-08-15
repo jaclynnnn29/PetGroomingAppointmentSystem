@@ -9,6 +9,20 @@ public class HomeController(ApplicationDbContext db) : Controller
     // GET: Home/Index 
     public IActionResult Index()
     {
+        // Redirect Admin users directly to Admin Dashboard
+        if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+        {
+            return RedirectToAction("Index", "Admin");
+        }
+
+        // Session check fallback (if using HttpContext.Session)
+        var sessionRole = HttpContext.Session.GetString("Role");
+        var userEmail = HttpContext.Session.GetString("UserEmail");
+        if (sessionRole == "Admin" || userEmail == "admin@petgrooming.com")
+        {
+            return RedirectToAction("Index", "Admin");
+        }
+
         // Fetch up to 3 services to feature on the homepage hero section
         var featuredServices = db.GroomingServices.Take(3).ToList();
         return View(featuredServices);
