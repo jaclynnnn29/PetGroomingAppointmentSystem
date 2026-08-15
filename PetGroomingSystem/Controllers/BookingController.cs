@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PetGroomingSystem.Models;
 using PetGroomingSystem.ViewModels;
+using PetGroomingSystem.Services; // <-- Added this using statement
 
 namespace PetGroomingSystem.Controllers;
 
-public class BookingController(ApplicationDbContext db) : Controller
+// <-- Added IEmailService to the constructor injection
+public class BookingController(ApplicationDbContext db, IEmailService emailService) : Controller
 {
     // GET: Booking/Index (Services Catalog)
     public IActionResult Index()
@@ -30,13 +32,15 @@ public class BookingController(ApplicationDbContext db) : Controller
     // POST: Booking/Create (Processes Appointment - Replaces Checkout)
     [Authorize]
     [HttpPost]
-    public IActionResult Create(BookingAppointmentVM vm)
+    public async Task<IActionResult> Create(BookingAppointmentVM vm) // <-- Changed to async Task<IActionResult>
     {
         if (ModelState.IsValid)
         {
+            var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "member@example.com";
+
             var appointment = new Appointment
             {
-                MemberEmail = User.Identity?.Name ?? "member@example.com",
+                MemberEmail = userEmail,
                 GroomingServiceId = vm.ServiceId,
                 PetType = vm.PetType,
                 PetName = vm.PetName,
@@ -47,7 +51,23 @@ public class BookingController(ApplicationDbContext db) : Controller
             };
 
             db.Appointments.Add(appointment);
-            db.SaveChanges();
+            await db.SaveChangesAsync(); 
+
+            // ==========================================
+            // SEND THE CONFIRMATION EMAIL
+            // ==========================================
+            var subject = "🐾 Appointment Confirmed!";
+            var body = $@"
+                <h3>Thank you for booking with Teddy PetGrooming System!</h3>
+                <p>Your appointment for <strong>{vm.PetName}</strong> is confirmed.</p>
+                <ul>
+                    <li><strong>Date:</strong> {appointment.Date.ToString("yyyy-MM-dd")}</li>
+                    <li><strong>Time:</strong> {appointment.TimeSlot}</li>
+                </ul>
+                <p>We look forward to pampering your pet!</p>";
+
+            // Send the email in the background
+            await emailService.SendEmailAsync(userEmail, subject, body);
 
             return RedirectToAction("BookingComplete", new { id = appointment.Id });
         }
@@ -113,7 +133,7 @@ public class BookingController(ApplicationDbContext db) : Controller
     [Authorize]
     public IActionResult AppointmentDetail(int id)
     {
-        var email = User.Identity?.Name ?? "";
+        var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
         var m = db.Appointments
                   .Include(a => a.GroomingService)
                   .FirstOrDefault(a => a.Id == id && a.MemberEmail == email);
