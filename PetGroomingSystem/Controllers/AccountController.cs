@@ -13,10 +13,10 @@ namespace PetGroomingSystem.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly PasswordHasher<Member> _passwordHasher;
-        private readonly EmailService _emailService;
+        private readonly IEmailService _emailService;
 
-        public AccountController(ApplicationDbContext context, EmailService emailService)
-        {
+        public AccountController(ApplicationDbContext context, IEmailService emailService)
+            {
             _context = context;
             _passwordHasher = new PasswordHasher<Member>();
             _emailService = emailService; // <-- 3. Assign here
