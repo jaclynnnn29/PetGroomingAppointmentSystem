@@ -2,11 +2,7 @@
 
 @{
     ViewData["Title"] = "Login";
-}
-
-<h2>Login</h2>
-
-<form asp-action="Login" method="post">
+}<h2>Login</h2><form asp-action="Login" method="post">
 
     <div asp-validation-summary="ModelOnly"
          class="text-danger">
@@ -36,6 +32,12 @@
         <span asp-validation-for="Password"
               class="text-danger">
         </span>
+
+        <div class="mt-1">
+            <a asp-controller="Account" asp-action="ForgotPassword" class="text-decoration-none">
+                Forgot password?
+            </a>
+        </div>
     </div>
 
     <!-- CAPTCHA -->
@@ -73,9 +75,7 @@
     <a asp-action="Register"
        class="btn btn-secondary">
         Register
-    </a>
-
-</form>
+    </a></form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
