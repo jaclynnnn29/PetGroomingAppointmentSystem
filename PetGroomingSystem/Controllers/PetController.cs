@@ -319,5 +319,57 @@ namespace PetGroomingSystem.Controllers
             );
         }
 
+        // =========================
+        // DELETE PET PHOTO
+        // =========================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeletePhoto(int photoId)
+        {
+            var memberId = int.Parse(
+                User.FindFirst(
+                    System.Security.Claims.ClaimTypes.NameIdentifier
+                )!.Value
+            );
+
+            // Find photo and make sure it belongs to the logged-in member
+            var photo = _context.PetPhotos
+                .Include(p => p.Pet)
+                .FirstOrDefault(p =>
+                    p.PetPhotoID == photoId &&
+                    p.Pet.MemberID == memberId
+                );
+
+            if (photo == null)
+            {
+                return NotFound();
+            }
+
+            // Delete physical image file
+            var filePath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                photo.PhotoPath.TrimStart('/')
+                    .Replace("/", Path.DirectorySeparatorChar.ToString())
+            );
+
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+
+            // Delete photo record from database
+            var petId = photo.PetID;
+
+            _context.PetPhotos.Remove(photo);
+            _context.SaveChanges();
+
+            return RedirectToAction(
+                nameof(Details),
+                new { id = petId }
+            );
+        }
+
     }
 }
