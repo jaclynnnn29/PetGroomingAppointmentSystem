@@ -1,26 +1,38 @@
-﻿@{
-    ViewData["Title"] = "Admin Dashboard";
-}
+﻿<div class="container mt-4">
+    <h1 class="mb-4">Admin Dashboard</h1>
 
-<div class="text-center">
-    <h1 class="display-4">Admin Dashboard</h1>
-
-    <p class="lead">
-        Welcome, @User.Identity?.Name!
-    </p>
-
-    <hr />
-
-    <div class="row mt-4">
-
+    <div class="row g-4">
+        <!-- Action 1: View & Manage Appointments -->
         <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5>Appointments</h5>
-                    <p>View upcoming appointments.</p>
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold">📅 Appointments</h5>
+                    <p class="card-text text-muted">View, confirm, or cancel client grooming appointments.</p>
+                    <a asp-controller="Admin" asp-action="Appointments" class="btn btn-primary w-100">Manage Appointments</a>
                 </div>
             </div>
         </div>
 
+        <!-- Action 2: Manage Grooming Services -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold">✂️ Services</h5>
+                    <p class="card-text text-muted">Add, edit, or remove grooming packages and prices.</p>
+                    <a asp-controller="Admin" asp-action="Services" class="btn btn-outline-primary w-100">Manage Services</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action 3: Manage Registered Users -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold">👥 User Management</h5>
+                    <p class="card-text text-muted">View registered members, unlock accounts, and view pet profiles.</p>
+                    <a asp-controller="Admin" asp-action="Users" class="btn btn-outline-primary w-100">Manage Users</a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
