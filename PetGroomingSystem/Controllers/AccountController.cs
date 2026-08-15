@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using PetGroomingSystem.Models;
 using PetGroomingSystem.ViewModels;
 using System.Security.Claims;
@@ -274,5 +275,42 @@ namespace PetGroomingSystem.Controllers
         {
             return View();
         }
-    }
-}
+
+        // =========================
+        // USER PREFERENCES
+        // =========================
+
+        [HttpPost]
+        [Authorize]
+        public IActionResult SavePreferences(string theme, string navOrder)
+        {
+            // Get logged-in user's email from claims
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest();
+            }
+
+            var member = _context.Members.FirstOrDefault(m => m.Email == email);
+
+            if (member != null)
+            {
+                if (!string.IsNullOrEmpty(theme))
+                {
+                    member.PreferredTheme = theme;
+                }
+
+                if (!string.IsNullOrEmpty(navOrder))
+                {
+                    member.NavOrder = navOrder;
+                }
+
+                _context.SaveChanges();
+                return Json(new { success = true });
+            }
+
+            return BadRequest();
+        }
+    } 
+} 
