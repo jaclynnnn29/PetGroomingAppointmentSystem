@@ -117,11 +117,13 @@ namespace PetGroomingSystem.Controllers
             // CHECK CAPTCHA
             // =========================
 
-            var correctAnswer = TempData["CaptchaAnswer"];
+            var correctAnswer = TempData["CaptchaAnswer"]?.ToString();
 
-            if (correctAnswer == null ||
-                !int.TryParse(correctAnswer.ToString(), out int captchaAnswer) ||
-                model.CaptchaUserAnswer != captchaAnswer)
+            if (string.IsNullOrEmpty(correctAnswer) ||
+                string.IsNullOrEmpty(model.CaptchaUserAnswer) ||
+                !model.CaptchaUserAnswer.Equals(
+                    correctAnswer,
+                    StringComparison.OrdinalIgnoreCase))
             {
                 ModelState.AddModelError(
                     "CaptchaUserAnswer",
@@ -247,15 +249,20 @@ namespace PetGroomingSystem.Controllers
 
         private void GenerateCaptcha()
         {
+            const string characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
             var random = new Random();
 
-            int number1 = random.Next(1, 10);
-            int number2 = random.Next(1, 10);
+            string captcha = "";
 
-            TempData["CaptchaAnswer"] = number1 + number2;
+            for (int i = 0; i < 5; i++)
+            {
+                captcha += characters[random.Next(characters.Length)];
+            }
 
-            ViewData["CaptchaQuestion"] =
-                $"What is {number1} + {number2}?";
+            TempData["CaptchaAnswer"] = captcha;
+
+            ViewData["CaptchaCode"] = captcha;
         }
 
         // =========================

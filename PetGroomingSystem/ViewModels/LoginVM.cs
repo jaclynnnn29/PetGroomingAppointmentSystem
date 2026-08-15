@@ -20,5 +20,5 @@ public class LoginVM
     public int CaptchaAnswer { get; set; }
 
     [Required(ErrorMessage = "Please enter the correct CAPTCHA answer :) :) ")]
-    public int? CaptchaUserAnswer { get; set; }
+    public string CaptchaUserAnswer { get; set; }
 }

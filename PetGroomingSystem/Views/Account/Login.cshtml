@@ -44,22 +44,28 @@
                 </div>
             </div>
 
-            <!-- CAPTCHA -->
-            <div class="mb-3">
+        <!-- CAPTCHA -->
+        <div class="mb-3">
 
-                <label class="form-label">
-                    @ViewData["CaptchaQuestion"]
-                </label>
+            <label class="form-label">
+                Type the characters below
+            </label>
 
-                <input asp-for="CaptchaUserAnswer"
-                       class="form-control"
-                       type="number" />
-
-                <span asp-validation-for="CaptchaUserAnswer"
-                      class="text-danger">
-                </span>
-
+            <div class="captcha-box mb-2">
+                @ViewData["CaptchaCode"]
             </div>
+
+            <input asp-for="CaptchaUserAnswer"
+                   class="form-control"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Enter CAPTCHA" />
+
+            <span asp-validation-for="CaptchaUserAnswer"
+                  class="text-danger">
+            </span>
+
+        </div>
 
             <div class="form-check mb-3">
                 <input asp-for="RememberMe"
