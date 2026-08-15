@@ -131,6 +131,7 @@ namespace PetGroomingSystem.Controllers
 
             if (!ModelState.IsValid)
             {
+                GenerateCaptcha();
                 return View(model);
             }
 
@@ -141,6 +142,7 @@ namespace PetGroomingSystem.Controllers
             if (member == null)
             {
                 ModelState.AddModelError("", "Invalid email or password.");
+                GenerateCaptcha();
                 return View(model);
             }
 
@@ -153,6 +155,7 @@ namespace PetGroomingSystem.Controllers
                     "Your account is temporarily locked. Please try again after 1 minute."
                 );
 
+                GenerateCaptcha();
                 return View(model);
             }
 
@@ -180,6 +183,7 @@ namespace PetGroomingSystem.Controllers
                         "Too many failed attempts. Your account is locked for 1 minute."
                     );
 
+                    GenerateCaptcha();
                     return View(model);
                 }
 
@@ -190,6 +194,7 @@ namespace PetGroomingSystem.Controllers
                     $"Invalid email or password. Failed attempts: {member.FailedLoginAttempts}/3"
                 );
 
+                GenerateCaptcha();
                 return View(model);
             }
 
