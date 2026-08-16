@@ -27,6 +27,7 @@ else
                 <th>Date</th>
                 <th>Time Slot</th>
                 <th>Status</th>
+                <th>Payment</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -42,7 +43,30 @@ else
                         <span class="badge bg-success">@item.Status</span>
                     </td>
                     <td>
-                        <a asp-action="AppointmentDetail" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white">Details</a>
+                        @if (item.IsPaid)
+                        {
+                            <span class="badge bg-success">Paid ✓</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">Unpaid</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="AppointmentDetail" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white me-1">Details</a>
+
+                        @if (item.IsPaid)
+                        {
+                            <a asp-controller="Payment" asp-action="DownloadReceipt" asp-route-appointmentId="@item.Id" class="btn btn-sm btn-outline-primary">
+                                📄 Receipt
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Payment" asp-action="CreateCheckoutSession" asp-route-appointmentId="@item.Id" class="btn btn-sm btn-success">
+                                💳 Pay Now
+                            </a>
+                        }
                     </td>
                 </tr>
             }

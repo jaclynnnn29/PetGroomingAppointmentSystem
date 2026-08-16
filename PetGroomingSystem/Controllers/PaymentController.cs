@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using PetGroomingSystem.Models;
 using Stripe;
 using Stripe.Checkout;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace PetGroomingSystem.Controllers
 {
@@ -83,6 +86,80 @@ namespace PetGroomingSystem.Controllers
         public IActionResult Cancel()
         {
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult DownloadReceipt(int appointmentId)
+        {
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            var appointment = _context.Appointments
+                .Include(a => a.GroomingService)
+                .FirstOrDefault(a => a.Id == appointmentId);
+
+            if (appointment == null)
+            {
+                return NotFound();
+            }
+
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(50);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(12));
+
+                    page.Header()
+                        .Text("PET GROOMING RECEIPT")
+                        .SemiBold().FontSize(24).FontColor(Colors.Blue.Medium);
+
+                    page.Content()
+                        .PaddingVertical(20)
+                        .Column(x =>
+                        {
+                            x.Spacing(10);
+
+                            x.Item().Text($"Receipt #: REC-{appointment.Id:D6}").Bold();
+                            x.Item().Text($"Date: {DateTime.Now:dd/MM/yyyy HH:mm}");
+                            x.Item().Text($"Pet Name: {appointment.PetName}");
+
+                            x.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+
+                            x.Item().Table(table =>
+                            {
+                                table.ColumnsDefinition(columns =>
+                                {
+                                    columns.RelativeColumn(3);
+                                    columns.RelativeColumn(1);
+                                });
+
+                                table.Header(header =>
+                                {
+                                    header.Cell().Text("Service").Bold();
+                                    header.Cell().Text("Price").Bold();
+                                });
+
+                                table.Cell().Text(appointment.GroomingService?.Name ?? "Grooming Service");
+                                table.Cell().Text($"RM {appointment.GroomingService?.Price:F2}");
+                            });
+
+                            x.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+
+                            x.Item().AlignRight().Text($"Total Paid: RM {appointment.GroomingService?.Price:F2}").Bold().FontSize(14);
+                            x.Item().AlignRight().Text("Status: PAID ✓").Bold().FontColor(Colors.Green.Medium);
+                        });
+
+                    page.Footer()
+                        .AlignCenter()
+                        .Text("Thank you for using our Pet Grooming Service!")
+                        .FontSize(10).FontColor(Colors.Grey.Medium);
+                });
+            });
+
+            byte[] pdfBytes = document.GeneratePdf();
+            return File(pdfBytes, "application/pdf", $"Receipt_Appointment_{appointmentId}.pdf");
         }
     }
 }
