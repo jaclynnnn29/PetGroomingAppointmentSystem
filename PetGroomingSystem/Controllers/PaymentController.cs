@@ -89,6 +89,7 @@ namespace PetGroomingSystem.Controllers
         }
 
         [HttpGet]
+        [HttpGet]
         public IActionResult DownloadReceipt(int appointmentId)
         {
             QuestPDF.Settings.License = LicenseType.Community;
@@ -102,59 +103,126 @@ namespace PetGroomingSystem.Controllers
                 return NotFound();
             }
 
+            var serviceName = appointment.GroomingService?.Name ?? "Grooming Service";
+            var price = appointment.GroomingService?.Price ?? 0;
+
             var document = Document.Create(container =>
             {
                 container.Page(page =>
                 {
                     page.Size(PageSizes.A4);
-                    page.Margin(50);
-                    page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(12));
+                    page.Margin(35);
+                    page.PageColor("#EBF5FF"); // Pastel light blue background theme
+                    page.DefaultTextStyle(x => x.FontSize(10).FontColor("#1E293B"));
 
-                    page.Header()
-                        .Text("PET GROOMING RECEIPT")
-                        .SemiBold().FontSize(24).FontColor(Colors.Blue.Medium);
-
-                    page.Content()
-                        .PaddingVertical(20)
-                        .Column(x =>
+                    // 1. HEADER SECTION
+                    page.Header().Column(header =>
+                    {
+                        header.Item().Row(row =>
                         {
-                            x.Spacing(10);
-
-                            x.Item().Text($"Receipt #: REC-{appointment.Id:D6}").Bold();
-                            x.Item().Text($"Date: {DateTime.Now:dd/MM/yyyy HH:mm}");
-                            x.Item().Text($"Pet Name: {appointment.PetName}");
-
-                            x.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
-
-                            x.Item().Table(table =>
+                            // Left: Shop Info
+                            row.RelativeItem().Column(col =>
                             {
-                                table.ColumnsDefinition(columns =>
-                                {
-                                    columns.RelativeColumn(3);
-                                    columns.RelativeColumn(1);
-                                });
-
-                                table.Header(header =>
-                                {
-                                    header.Cell().Text("Service").Bold();
-                                    header.Cell().Text("Price").Bold();
-                                });
-
-                                table.Cell().Text(appointment.GroomingService?.Name ?? "Grooming Service");
-                                table.Cell().Text($"RM {appointment.GroomingService?.Price:F2}");
+                                col.Item().Text("🐾 PET GROOMING SHOP").ExtraBold().FontSize(18).FontColor("#1E3A8A");
+                                col.Item().Text("123 Grooming Street, Pet City").FontSize(9).FontColor("#475569");
+                                col.Item().Text("+60 12-345 6789 | info@petgrooming.com").FontSize(9).FontColor("#475569");
                             });
 
-                            x.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
-
-                            x.Item().AlignRight().Text($"Total Paid: RM {appointment.GroomingService?.Price:F2}").Bold().FontSize(14);
-                            x.Item().AlignRight().Text("Status: PAID ✓").Bold().FontColor(Colors.Green.Medium);
+                            // Right: Invoice Title & Number
+                            row.RelativeItem().AlignRight().Column(col =>
+                            {
+                                col.Item().Text("INVOICE / RECEIPT").ExtraBold().FontSize(18).FontColor("#2563EB");
+                                col.Item().Text($"No: REC-{appointment.Id:D6}").Bold().FontSize(10);
+                                col.Item().Text($"Date: {DateTime.Now:dd/MM/yyyy}").FontSize(9);
+                            });
                         });
 
-                    page.Footer()
-                        .AlignCenter()
-                        .Text("Thank you for using our Pet Grooming Service!")
-                        .FontSize(10).FontColor(Colors.Grey.Medium);
+                        header.Item().PaddingVertical(10).LineHorizontal(1).LineColor("#BFDBFE");
+
+                        // Customer & Appointment Info Block
+                        header.Item().Row(row =>
+                        {
+                            row.RelativeItem().Column(col =>
+                            {
+                                col.Item().Text("TO:").Bold().FontSize(10).FontColor("#1E3A8A");
+                                col.Item().Text($"Pet Name: {appointment.PetName}").Bold().FontSize(11);
+                                col.Item().Text($"Appointment Date: {appointment.Date:yyyy-MM-dd} ({appointment.TimeSlot})").FontSize(9).FontColor("#334155");
+                            });
+                        });
+                    });
+
+                    // 2. MAIN TABLE CONTENT SECTION
+                    page.Content().PaddingVertical(15).Column(col =>
+                    {
+                        col.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(3); // Item Name
+                                columns.RelativeColumn(1); // Price
+                                columns.RelativeColumn(1); // Qty
+                                columns.RelativeColumn(1); // Total
+                            });
+
+                            // Styled Table Header
+                            table.Header(header =>
+                            {
+                                header.Cell().Background("#1E3A8A").Padding(8).Text("ITEM NAME").Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1E3A8A").Padding(8).AlignRight().Text("PRICE").Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1E3A8A").Padding(8).AlignCenter().Text("QTY").Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1E3A8A").Padding(8).AlignRight().Text("TOTAL").Bold().FontColor(Colors.White);
+                            });
+
+                            // Service Line Item
+                            table.Cell().Background("#DBEAFE").Padding(8).Text(serviceName);
+                            table.Cell().Background("#DBEAFE").Padding(8).AlignRight().Text($"RM {price:F2}");
+                            table.Cell().Background("#DBEAFE").Padding(8).AlignCenter().Text("1");
+                            table.Cell().Background("#DBEAFE").Padding(8).AlignRight().Text($"RM {price:F2}");
+                        });
+
+                        col.Item().PaddingTop(20).Row(row =>
+                        {
+                            // Left: Payment Method & Status
+                            row.RelativeItem().Column(left =>
+                            {
+                                left.Item().Text("PAYMENT METHOD").Bold().FontSize(10).FontColor("#1E3A8A");
+                                left.Item().Text("Card Payment (Stripe Sandbox)").FontSize(9);
+                                left.Item().Text("Status: PAID ✓").Bold().FontColor(Colors.Green.Medium).FontSize(11);
+                            });
+
+                            // Right: Subtotal and Total Summary
+                            row.RelativeItem().AlignRight().Column(right =>
+                            {
+                                right.Item().Row(r =>
+                                {
+                                    r.RelativeItem().Text("SUBTOTAL:").Bold();
+                                    r.RelativeItem().AlignRight().Text($"RM {price:F2}");
+                                });
+                                right.Item().Row(r =>
+                                {
+                                    r.RelativeItem().Text("TAX (0%):").Bold();
+                                    r.RelativeItem().AlignRight().Text("RM 0.00");
+                                });
+                                right.Item().PaddingVertical(4).LineHorizontal(1).LineColor("#93C5FD");
+                                right.Item().Row(r =>
+                                {
+                                    r.RelativeItem().Text("TOTAL:").ExtraBold().FontSize(12).FontColor("#1E3A8A");
+                                    r.RelativeItem().AlignRight().Text($"RM {price:F2}").ExtraBold().FontSize(12).FontColor("#1E3A8A");
+                                });
+                            });
+                        });
+
+                        // Terms and Conditions
+                        col.Item().PaddingTop(30).Column(terms =>
+                        {
+                            terms.Item().Text("TERMS AND CONDITIONS").Bold().FontSize(9).FontColor("#1E3A8A");
+                            terms.Item().Text("1. This receipt is computer-generated upon payment confirmation.").FontSize(8).FontColor("#64748B");
+                            terms.Item().Text("2. Please present this receipt during your appointment check-in.").FontSize(8).FontColor("#64748B");
+                        });
+                    });
+
+                    // 3. FOOTER
+                    page.Footer().AlignCenter().Text("Thank you for your business! 🐶🐱").Bold().FontSize(11).FontColor("#1E3A8A");
                 });
             });
 
