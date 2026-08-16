@@ -31,4 +31,7 @@ public class Appointment
     public string Status { get; set; } = "Confirmed";
 
     public GroomingService? GroomingService { get; set; }
+
+    public bool IsPaid { get; set; } = false;
+    public string? StripeSessionId { get; set; }
 }

@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Our Grooming Services";
 }
-
 <div class="container py-4">
     <h1 class="fw-bold mb-4">Our Grooming Services</h1>
 
@@ -16,12 +15,19 @@
                         <h4 class="card-title fw-bold mb-2">@service.Name</h4>
                         <p class="card-text text-secondary mb-3 flex-grow-1">@service.Description</p>
                         <p class="fw-bold text-success fs-5 mb-3">Price: RM @service.Price.ToString("F2")</p>
-                        <a asp-controller="Booking" asp-action="Create" asp-route-serviceId="@service.Id" class="btn btn-primary w-100 py-2 fw-semibold">
+
+                        <a asp-controller="Booking" asp-action="Create" asp-route-serviceId="@service.Id" class="btn btn-primary w-100 py-2 fw-semibold mb-2">
                             Book Now
                         </a>
+
+                        <form asp-controller="Payment" asp-action="CreateCheckoutSession" method="post">
+                            <input type="hidden" name="serviceId" value="@service.Id" />
+                            <button type="submit" class="btn btn-outline-success w-100 py-2 fw-semibold">
+                                💳 Pay Now (RM @service.Price.ToString("F2"))
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
         }
-    </div>
-</div>
+    </div></div>
