@@ -34,7 +34,6 @@ namespace PetGroomingSystem.Controllers
 
             StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
 
-            // Calculate price in cents (e.g., RM 50.00 -> 5000 cents)
             long priceInCents = (long)(appointment.GroomingService.Price * 100);
 
             var options = new SessionCreateOptions
@@ -89,7 +88,6 @@ namespace PetGroomingSystem.Controllers
         }
 
         [HttpGet]
-        [HttpGet]
         public IActionResult DownloadReceipt(int appointmentId)
         {
             QuestPDF.Settings.License = LicenseType.Community;
@@ -106,47 +104,48 @@ namespace PetGroomingSystem.Controllers
             var serviceName = appointment.GroomingService?.Name ?? "Grooming Service";
             var price = appointment.GroomingService?.Price ?? 0;
 
+            var customerName = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
+                            ?? User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                            ?? "Valued Customer";
+
             var document = Document.Create(container =>
             {
                 container.Page(page =>
                 {
                     page.Size(PageSizes.A4);
                     page.Margin(35);
-                    page.PageColor("#EBF5FF"); // Pastel light blue background theme
+                    page.PageColor("#EBF5FF");
                     page.DefaultTextStyle(x => x.FontSize(10).FontColor("#1E293B"));
 
-                    // 1. HEADER SECTION
+                    // 1. CENTERED HEADER SECTION
                     page.Header().Column(header =>
                     {
-                        header.Item().Row(row =>
+                        // Centered Shop Info Header
+                        header.Item().Column(col =>
                         {
-                            // Left: Shop Info
-                            row.RelativeItem().Column(col =>
-                            {
-                                col.Item().Text("🐶🐱🐾 TEDDY PET GROOMING ").ExtraBold().FontSize(18).FontColor("#1E3A8A");
-                                col.Item().Text("No. 28, Jalan 3/23A,\r\n\r\nTaman Setapak Indah,\r\n\r\nSetapak, 53300 Kuala Lumpur,\r\n\r\nWilayah Persekutuan Kuala Lumpur").FontSize(9).FontColor("#475569");
-                                col.Item().Text("+60 12-345 6789 | teddypetgroomingsystem@gmail.com").FontSize(9).FontColor("#475569");
-                            });
-
-                            // Right: Invoice Title & Number
-                            row.RelativeItem().AlignRight().Column(col =>
-                            {
-                                col.Item().Text("INVOICE").ExtraBold().FontSize(18).FontColor("#2563EB");
-                                col.Item().Text($"No: REC-{appointment.Id:D6}").Bold().FontSize(10);
-                                col.Item().Text($"Date: {DateTime.Now:dd/MM/yyyy}").FontSize(9);
-                            });
+                            col.Item().AlignCenter().Text("🐶 🐱 🐾 TEDDY PET GROOMING").ExtraBold().FontSize(20).FontColor("#1E3A8A");
+                            col.Item().AlignCenter().Text("No. 28, Jalan 3/23A, Taman Setapak Indah,").FontSize(9).FontColor("#475569");
+                            col.Item().AlignCenter().Text("Setapak, 53300 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur").FontSize(9).FontColor("#475569");
+                            col.Item().AlignCenter().Text("+60 12-345 6789 | teddypetgroomingsystem@gmail.com").FontSize(9).FontColor("#475569");
                         });
 
                         header.Item().PaddingVertical(10).LineHorizontal(1).LineColor("#BFDBFE");
 
-                        // Customer & Appointment Info Block
+                        // Details Block (Customer on Left | Invoice Metadata on Right)
                         header.Item().Row(row =>
                         {
                             row.RelativeItem().Column(col =>
                             {
-                                col.Item().Text("TO:").Bold().FontSize(10).FontColor("#1E3A8A");
-                                col.Item().Text($"Pet Name: {appointment.PetName}").Bold().FontSize(11);
+                                col.Item().Text($"TO: {customerName}").Bold().FontSize(11).FontColor("#1E3A8A");
+                                col.Item().Text($"Pet Name: {appointment.PetName}").Bold().FontSize(10);
                                 col.Item().Text($"Appointment Date: {appointment.Date:yyyy-MM-dd} ({appointment.TimeSlot})").FontSize(9).FontColor("#334155");
+                            });
+
+                            row.RelativeItem().AlignRight().Column(col =>
+                            {
+                                col.Item().Text("INVOICE").ExtraBold().FontSize(15).FontColor("#2563EB");
+                                col.Item().Text($"No: REC-{appointment.Id:D6}").Bold().FontSize(10);
+                                col.Item().Text($"Date: {DateTime.Now:dd/MM/yyyy}").FontSize(9);
                             });
                         });
                     });
@@ -158,22 +157,20 @@ namespace PetGroomingSystem.Controllers
                         {
                             table.ColumnsDefinition(columns =>
                             {
-                                columns.RelativeColumn(3); // Item Name
-                                columns.RelativeColumn(1); // Price
-                                columns.RelativeColumn(1); // Qty
-                                columns.RelativeColumn(1); // Total
+                                columns.RelativeColumn(3);
+                                columns.RelativeColumn(1);
+                                columns.RelativeColumn(1);
+                                columns.RelativeColumn(1);
                             });
 
-                            // Styled Table Header
                             table.Header(header =>
                             {
-                                header.Cell().Background("#1E3A8A").Padding(8).Text("ITEM NAME").Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1E3A8A").Padding(8).Text("NAME OF SERVICES").Bold().FontColor(Colors.White);
                                 header.Cell().Background("#1E3A8A").Padding(8).AlignRight().Text("PRICE").Bold().FontColor(Colors.White);
                                 header.Cell().Background("#1E3A8A").Padding(8).AlignCenter().Text("QTY").Bold().FontColor(Colors.White);
                                 header.Cell().Background("#1E3A8A").Padding(8).AlignRight().Text("TOTAL").Bold().FontColor(Colors.White);
                             });
 
-                            // Service Line Item
                             table.Cell().Background("#DBEAFE").Padding(8).Text(serviceName);
                             table.Cell().Background("#DBEAFE").Padding(8).AlignRight().Text($"RM {price:F2}");
                             table.Cell().Background("#DBEAFE").Padding(8).AlignCenter().Text("1");
@@ -182,15 +179,13 @@ namespace PetGroomingSystem.Controllers
 
                         col.Item().PaddingTop(20).Row(row =>
                         {
-                            // Left: Payment Method & Status
                             row.RelativeItem().Column(left =>
                             {
                                 left.Item().Text("PAYMENT METHOD").Bold().FontSize(10).FontColor("#1E3A8A");
-                                left.Item().Text("Card Payment (Stripe Sandbox)").FontSize(9);
+                                left.Item().Text("Card Payment ").FontSize(9);
                                 left.Item().Text("Status: PAID ✓").Bold().FontColor(Colors.Green.Medium).FontSize(11);
                             });
 
-                            // Right: Subtotal and Total Summary
                             row.RelativeItem().AlignRight().Column(right =>
                             {
                                 right.Item().Row(r =>
@@ -212,12 +207,11 @@ namespace PetGroomingSystem.Controllers
                             });
                         });
 
-                        // Terms and Conditions
                         col.Item().PaddingTop(30).Column(terms =>
                         {
                             terms.Item().Text("TERMS AND CONDITIONS").Bold().FontSize(9).FontColor("#1E3A8A");
                             terms.Item().Text("1. This receipt is computer-generated upon payment confirmation.").FontSize(8).FontColor("#64748B");
-                            terms.Item().Text("2. Please present this receipt during your appointment check-in.").FontSize(8).FontColor("#64748B");
+                            terms.Item().Text("2. Please show this receipt during your appointment check-in.").FontSize(8).FontColor("#64748B");
                         });
                     });
 
