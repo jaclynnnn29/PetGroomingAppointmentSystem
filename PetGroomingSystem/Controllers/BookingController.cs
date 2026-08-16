@@ -132,6 +132,7 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
     }
 
     // GET: Booking/AppointmentDetail (Replaces OrderDetail)
+    // GET: Booking/AppointmentDetail (Replaces OrderDetail)
     [Authorize]
     public IActionResult AppointmentDetail(int id)
     {
@@ -145,7 +146,9 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
         return View(m);
     }
 
-    // POST: Booking/CancelAppointment
+    // ==========================================
+    // REPLACE / ADD CANCEL ACTION HERE
+    // ==========================================
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> CancelAppointment(int id)
@@ -161,7 +164,6 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
             appointment.Status = "Cancelled";
             await db.SaveChangesAsync();
 
-            // Send Cancellation Confirmation Email
             var subject = "❌ Appointment Cancelled - Teddy PetGrooming";
             var body = $@"
                 <h3>Appointment Cancellation Confirmed</h3>
@@ -179,12 +181,7 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
     [HttpPost]
     public IActionResult ResetAll()
     {
-        // Delete all appointment records
         db.Appointments.ExecuteDelete();
-
-        // Reseed identity column
         db.Database.ExecuteSqlRaw("DBCC CHECKIDENT (Appointments, RESEED, 0);");
-
         return RedirectToAction("Appointments");
     }
-}
