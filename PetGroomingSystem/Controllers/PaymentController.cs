@@ -124,8 +124,8 @@ namespace PetGroomingSystem.Controllers
                             row.RelativeItem().Column(col =>
                             {
                                 col.Item().Text("🐾 TEDDY PET GROOMING ").ExtraBold().FontSize(18).FontColor("#1E3A8A");
-                                col.Item().Text("123 Grooming Street, Pet City").FontSize(9).FontColor("#475569");
-                                col.Item().Text("+60 12-345 6789 | info@petgrooming.com").FontSize(9).FontColor("#475569");
+                                col.Item().Text("No. 28, Jalan 3/23A,\r\n\r\nTaman Setapak Indah,\r\n\r\nSetapak, 53300 Kuala Lumpur,\r\n\r\nWilayah Persekutuan Kuala Lumpur").FontSize(9).FontColor("#475569");
+                                col.Item().Text("+60 12-345 6789 | teddypetgroomingsystem@gmail.com").FontSize(9).FontColor("#475569");
                             });
 
                             // Right: Invoice Title & Number
