@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Payment Successful";
+}
+
+<div class="container py-5 text-center">
+    <div class="card border-0 shadow p-5 mx-auto" style="max-width: 600px; border-radius: 15px;">
+        <div class="mb-3 text-success">
+            <h1 class="display-3 fw-bold">✓</h1>
+            <h2 class="fw-bold text-dark">Payment Successful! 🎉</h2>
+        </div>
+
+        <p class="text-secondary fs-5">
+            Thank you! Your payment for Appointment <strong>#@ViewBag.AppointmentID</strong> has been processed successfully.
+        </p>
+
+        <hr class="my-4" />
+
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+            <a asp-controller="Payment" asp-action="DownloadReceipt" asp-route-appointmentId="@ViewBag.AppointmentID" class="btn btn-outline-primary py-2 px-4 fw-semibold">
+                📄 Download PDF Receipt
+            </a>
+            <a asp-controller="Booking" asp-action="Appointments" class="btn btn-success py-2 px-4 fw-semibold">
+                View My Appointments
+            </a>
+        </div>
+    </div>
+</div>

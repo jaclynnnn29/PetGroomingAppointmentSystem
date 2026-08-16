@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Payment Cancelled";
+}
+
+<div class="container py-5 text-center">
+    <div class="card border-0 shadow p-5 mx-auto" style="max-width: 600px; border-radius: 15px;">
+        <div class="mb-3 text-warning">
+            <h1 class="display-3 fw-bold">⚠️</h1>
+            <h2 class="fw-bold text-dark">Payment Cancelled</h2>
+        </div>
+
+        <p class="text-secondary fs-5">
+            Your payment session was cancelled. No charges were made to your account.
+        </p>
+
+        <hr class="my-4" />
+
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+            <a asp-controller="Booking" asp-action="Appointments" class="btn btn-primary py-2 px-4 fw-semibold">
+                Try Again
+            </a>
+            <a asp-controller="Booking" asp-action="Index" class="btn btn-outline-secondary py-2 px-4 fw-semibold">
+                Back to Services
+            </a>
+        </div>
+    </div>
+</div>
