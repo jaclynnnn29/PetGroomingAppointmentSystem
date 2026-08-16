@@ -40,7 +40,14 @@ else
                     <td>@item.Date.ToString("yyyy-MM-dd")</td>
                     <td>@item.TimeSlot</td>
                     <td>
-                        <span class="badge bg-success">@item.Status</span>
+                        @if (item.Status == "Cancelled")
+                        {
+                            <span class="badge bg-danger">Cancelled</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">@item.Status</span>
+                        }
                     </td>
                     <td>
                         @if (item.IsPaid)
@@ -57,15 +64,22 @@ else
 
                         @if (item.IsPaid)
                         {
-                            <a asp-controller="Payment" asp-action="DownloadReceipt" asp-route-appointmentId="@item.Id" class="btn btn-sm btn-outline-primary">
+                            <a asp-controller="Payment" asp-action="DownloadReceipt" asp-route-appointmentId="@item.Id" class="btn btn-sm btn-outline-primary me-1">
                                 📄 Receipt
                             </a>
                         }
-                        else
+                        else if (item.Status != "Cancelled")
                         {
-                            <a asp-controller="Payment" asp-action="CreateCheckoutSession" asp-route-appointmentId="@item.Id" class="btn btn-sm btn-success">
+                            <a asp-controller="Payment" asp-action="CreateCheckoutSession" asp-route-appointmentId="@item.Id" class="btn btn-sm btn-success me-1">
                                 💳 Pay Now
                             </a>
+                        }
+
+                        @if (item.Status != "Cancelled")
+                        {
+                            <form asp-controller="Booking" asp-action="CancelAppointment" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                            </form>
                         }
                     </td>
                 </tr>

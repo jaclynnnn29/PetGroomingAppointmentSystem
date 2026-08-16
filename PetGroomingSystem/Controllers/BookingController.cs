@@ -145,6 +145,23 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
         return View(m);
     }
 
+    // POST: Booking/CancelAppointment
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> CancelAppointment(int id)
+    {
+        var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
+
+        var appointment = await db.Appointments.FirstOrDefaultAsync(a => a.Id == id && a.MemberEmail == email);
+        if (appointment != null)
+        {
+            appointment.Status = "Cancelled";
+            await db.SaveChangesAsync();
+        }
+
+        return RedirectToAction("Appointments");
+    }
+
     // POST: Booking/ResetAll (Resets Test Records)
     [HttpPost]
     public IActionResult ResetAll()
