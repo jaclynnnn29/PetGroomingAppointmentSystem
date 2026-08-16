@@ -126,7 +126,7 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
                   .OrderByDescending(a => a.Id)
                   .ToList();
 
-       
+
 
         return View(m);
     }
@@ -185,3 +185,4 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
         db.Database.ExecuteSqlRaw("DBCC CHECKIDENT (Appointments, RESEED, 0);");
         return RedirectToAction("Appointments");
     }
+}
