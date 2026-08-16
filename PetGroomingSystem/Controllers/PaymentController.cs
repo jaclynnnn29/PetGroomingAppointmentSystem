@@ -34,27 +34,29 @@ namespace PetGroomingSystem.Controllers
 
             StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
 
-            long priceInCents = (long)(appointment.GroomingService.Price * 100);
+            // Default to minimum 1.00 if price is 0 to avoid Stripe exception
+            decimal servicePrice = appointment.GroomingService.Price > 0 ? appointment.GroomingService.Price : 1.00m;
+            long priceInCents = (long)(servicePrice * 100);
 
             var options = new SessionCreateOptions
             {
                 PaymentMethodTypes = new List<string> { "card" },
                 LineItems = new List<SessionLineItemOptions>
+        {
+            new SessionLineItemOptions
+            {
+                PriceData = new SessionLineItemPriceDataOptions
                 {
-                    new SessionLineItemOptions
+                    UnitAmount = priceInCents,
+                    Currency = "myr",
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
-                        PriceData = new SessionLineItemPriceDataOptions
-                        {
-                            UnitAmount = priceInCents,
-                            Currency = "myr",
-                            ProductData = new SessionLineItemPriceDataProductDataOptions
-                            {
-                                Name = $"Grooming: {appointment.GroomingService.Name} ({appointment.PetName})",
-                            },
-                        },
-                        Quantity = 1,
+                        Name = $"Grooming: {appointment.GroomingService.Name} ({appointment.PetName})",
                     },
                 },
+                Quantity = 1,
+            },
+        },
                 Mode = "payment",
                 SuccessUrl = Url.Action("Success", "Payment", new { appointmentId }, Request.Scheme) + "&session_id={CHECKOUT_SESSION_ID}",
                 CancelUrl = Url.Action("Cancel", "Payment", null, Request.Scheme),
