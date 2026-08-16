@@ -8,10 +8,10 @@ namespace PetGroomingSystem.Controllers
 {
     public class PaymentController : Controller
     {
-        private readonly ApplicationDb _context;
+        private readonly ApplicationDbContext _context;
         private readonly IConfiguration _config;
 
-        public PaymentController(ApplicationDb context, IConfiguration config)
+        public PaymentController(ApplicationDbContext context, IConfiguration config)
         {
             _context = context;
             _config = config;
@@ -21,15 +21,18 @@ namespace PetGroomingSystem.Controllers
         public IActionResult CreateCheckoutSession(int appointmentId)
         {
             var appointment = _context.Appointments
-                .Include(a => a.Service)
-                .FirstOrDefault(a => a.AppointmentID == appointmentId);
+                .Include(a => a.GroomingService)
+                .FirstOrDefault(a => a.Id == appointmentId);
 
-            if (appointment == null) return NotFound();
+            if (appointment == null || appointment.GroomingService == null)
+            {
+                return NotFound();
+            }
 
             StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
 
-            // Calculate price in cents (e.g. RM 50.00 -> 5000)
-            long priceInCents = (long)((appointment.Service?.Price ?? appointment.TotalPrice) * 100);
+            // Calculate price in cents (e.g., RM 50.00 -> 5000 cents)
+            long priceInCents = (long)(appointment.GroomingService.Price * 100);
 
             var options = new SessionCreateOptions
             {
@@ -44,7 +47,7 @@ namespace PetGroomingSystem.Controllers
                             Currency = "myr",
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
-                                Name = $"Grooming Service: {appointment.Service?.ServiceName ?? "Grooming"}",
+                                Name = $"Grooming: {appointment.GroomingService.Name} ({appointment.PetName})",
                             },
                         },
                         Quantity = 1,
@@ -66,7 +69,7 @@ namespace PetGroomingSystem.Controllers
 
         public IActionResult Success(int appointmentId, string session_id)
         {
-            var appointment = _context.Appointments.FirstOrDefault(a => a.AppointmentID == appointmentId);
+            var appointment = _context.Appointments.FirstOrDefault(a => a.Id == appointmentId);
             if (appointment != null)
             {
                 appointment.IsPaid = true;
