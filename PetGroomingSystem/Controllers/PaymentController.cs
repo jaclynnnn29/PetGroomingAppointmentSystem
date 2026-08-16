@@ -131,7 +131,7 @@ namespace PetGroomingSystem.Controllers
                             // Right: Invoice Title & Number
                             row.RelativeItem().AlignRight().Column(col =>
                             {
-                                col.Item().Text("INVOICE / RECEIPT").ExtraBold().FontSize(18).FontColor("#2563EB");
+                                col.Item().Text("INVOICE").ExtraBold().FontSize(18).FontColor("#2563EB");
                                 col.Item().Text($"No: REC-{appointment.Id:D6}").Bold().FontSize(10);
                                 col.Item().Text($"Date: {DateTime.Now:dd/MM/yyyy}").FontSize(9);
                             });
