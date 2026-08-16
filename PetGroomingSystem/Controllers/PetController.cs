@@ -103,8 +103,6 @@ namespace PetGroomingSystem.Controllers
                 return View(pet);
             }
 
-            
-
             _context.Pets.Add(pet);
             _context.SaveChanges();
 

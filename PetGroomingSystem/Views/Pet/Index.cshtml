@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "My Pets";
 }
-
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>My Pets</h2>
 
@@ -42,6 +41,10 @@ else
         {
             <div class="col-md-4 mb-4">
                 <div class="card shadow-sm">
+                    @if (pet.Photos != null && pet.Photos.Any())
+                    {
+                        <img src="@pet.Photos.First().PhotoPath" class="card-img-top" alt="@pet.PetName" style="height: 200px; object-fit: cover;" />
+                    }
                     <div class="card-body">
 
                         <h4>@pet.PetName</h4>
