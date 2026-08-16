@@ -123,7 +123,7 @@ namespace PetGroomingSystem.Controllers
                             // Left: Shop Info
                             row.RelativeItem().Column(col =>
                             {
-                                col.Item().Text("🐾 PET GROOMING SHOP").ExtraBold().FontSize(18).FontColor("#1E3A8A");
+                                col.Item().Text("🐾 TEDDY PET GROOMING ").ExtraBold().FontSize(18).FontColor("#1E3A8A");
                                 col.Item().Text("123 Grooming Street, Pet City").FontSize(9).FontColor("#475569");
                                 col.Item().Text("+60 12-345 6789 | info@petgrooming.com").FontSize(9).FontColor("#475569");
                             });
@@ -222,7 +222,7 @@ namespace PetGroomingSystem.Controllers
                     });
 
                     // 3. FOOTER
-                    page.Footer().AlignCenter().Text("Thank you for your business! 🐶🐱").Bold().FontSize(11).FontColor("#1E3A8A");
+                    page.Footer().AlignCenter().Text("Thank you for your booking! 🐶🐱").Bold().FontSize(11).FontColor("#1E3A8A");
                 });
             });
 
