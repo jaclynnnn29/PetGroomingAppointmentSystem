@@ -126,7 +126,7 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
                   .OrderByDescending(a => a.Id)
                   .ToList();
 
-        if (Request.IsAjax()) return PartialView("_Appointments", m);
+       
 
         return View(m);
     }
@@ -152,11 +152,24 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
     {
         var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
 
-        var appointment = await db.Appointments.FirstOrDefaultAsync(a => a.Id == id && a.MemberEmail == email);
-        if (appointment != null)
+        var appointment = await db.Appointments
+            .Include(a => a.GroomingService)
+            .FirstOrDefaultAsync(a => a.Id == id && a.MemberEmail == email);
+
+        if (appointment != null && appointment.Status != "Cancelled")
         {
             appointment.Status = "Cancelled";
             await db.SaveChangesAsync();
+
+            // Send Cancellation Confirmation Email
+            var subject = "❌ Appointment Cancelled - Teddy PetGrooming";
+            var body = $@"
+                <h3>Appointment Cancellation Confirmed</h3>
+                <p>Your appointment <strong>#{appointment.Id}</strong> for <strong>{appointment.PetName}</strong> on <strong>{appointment.Date:yyyy-MM-dd} at {appointment.TimeSlot}</strong> has been cancelled.</p>
+                {(appointment.IsPaid ? "<p><em>Since this was a paid booking, our support team will process your refund shortly.</em></p>" : "")}
+                <p>We hope to see you and {appointment.PetName} again soon!</p>";
+
+            await emailService.SendEmailAsync(email, subject, body);
         }
 
         return RedirectToAction("Appointments");
