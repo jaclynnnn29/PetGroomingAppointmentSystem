@@ -13,7 +13,6 @@
     var totalAppointments = DbContext.Appointments.Count();
     var paidAppointments = DbContext.Appointments.Count(a => a.IsPaid);
 }
-
 <div class="d-flex align-items-center justify-content-center" style="min-height: 75vh;">
     <div class="container py-4">
         <!-- Centered Header -->
@@ -23,31 +22,42 @@
             <span class="badge bg-primary px-3 py-2 fs-6">System Administrator</span>
         </div>
 
-        <!-- NEW: Revenue & Sales Reporting Metrics (Member 3 Requirement) -->
+        <!-- NEW: Revenue & Sales Reporting Metrics (Clickable) -->
         <div class="row g-4 justify-content-center mb-4">
+            <!-- Total Revenue Card -> Filters to Revenue Report -->
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm bg-success text-white h-100">
-                    <div class="card-body p-4 text-center">
-                        <h6 class="text-uppercase fw-semibold mb-1 opacity-75">Total Revenue</h6>
-                        <h2 class="display-6 fw-bold mb-0">RM @totalRevenue.ToString("N2")</h2>
+                <a asp-controller="Admin" asp-action="Appointments" asp-route-filter="revenue" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm bg-success text-white h-100">
+                        <div class="card-body p-4 text-center">
+                            <h6 class="text-uppercase fw-semibold mb-1 opacity-75">Total Revenue</h6>
+                            <h2 class="display-6 fw-bold mb-0">RM @totalRevenue.ToString("N2")</h2>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
+
+            <!-- Total Bookings Card -> Displays All Bookings -->
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm bg-primary text-white h-100">
-                    <div class="card-body p-4 text-center">
-                        <h6 class="text-uppercase fw-semibold mb-1 opacity-75">Total Bookings</h6>
-                        <h2 class="display-6 fw-bold mb-0">@totalAppointments</h2>
+                <a asp-controller="Admin" asp-action="Appointments" asp-route-filter="all" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm bg-primary text-white h-100">
+                        <div class="card-body p-4 text-center">
+                            <h6 class="text-uppercase fw-semibold mb-1 opacity-75">Total Bookings</h6>
+                            <h2 class="display-6 fw-bold mb-0">@totalAppointments</h2>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
+
+            <!-- Paid Bookings Card -> Filters to Paid Bookings Only -->
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm bg-info text-white h-100">
-                    <div class="card-body p-4 text-center">
-                        <h6 class="text-uppercase fw-semibold mb-1 opacity-75">Paid Bookings</h6>
-                        <h2 class="display-6 fw-bold mb-0">@paidAppointments</h2>
+                <a asp-controller="Admin" asp-action="Appointments" asp-route-filter="paid" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm bg-info text-white h-100">
+                        <div class="card-body p-4 text-center">
+                            <h6 class="text-uppercase fw-semibold mb-1 opacity-75">Paid Bookings</h6>
+                            <h2 class="display-6 fw-bold mb-0">@paidAppointments</h2>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
     </div></div>

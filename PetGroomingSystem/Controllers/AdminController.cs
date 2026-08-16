@@ -29,14 +29,29 @@ namespace PetGroomingSystem.Controllers
             return View(services);
         }
 
-        // Action: Manage Appointments
-        public async Task<IActionResult> Appointments()
+        // Action: Manage Appointments (UPDATED TO ACCEPT FILTER PARAMETER)
+        public async Task<IActionResult> Appointments(string filter = "all")
         {
-            var appointments = await _context.Appointments
+            var query = _context.Appointments
                 .Include(a => a.GroomingService)
+                .AsQueryable();
+
+            if (filter == "paid")
+            {
+                // Filter only paid bookings
+                query = query.Where(a => a.IsPaid);
+            }
+            else if (filter == "revenue")
+            {
+                // Filter revenue-generating active/paid bookings
+                query = query.Where(a => a.IsPaid && a.Status != "Cancelled");
+            }
+
+            var appointments = await query
                 .OrderByDescending(a => a.Date)
                 .ToListAsync();
 
+            ViewBag.CurrentFilter = filter;
             return View(appointments);
         }
 
