@@ -7,7 +7,7 @@
     var paidApps = DbContext.Appointments
         .Where(a => a.IsPaid && a.Status != "Cancelled")
         .Select(a => a.GroomingService != null ? a.GroomingService.Price : 0m)
-        .ToList();
+        .ToList(); 
 
     var totalRevenue = paidApps.Sum();
     var totalAppointments = DbContext.Appointments.Count();
