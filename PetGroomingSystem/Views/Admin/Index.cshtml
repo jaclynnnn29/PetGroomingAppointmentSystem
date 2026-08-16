@@ -3,14 +3,17 @@
 @{
     ViewData["Title"] = "Admin Dashboard";
 
-    // Calculate revenue and booking metrics for Member 3 reporting requirement
-    var totalRevenue = DbContext.Appointments
+    // Fetch appointments with service price details included
+    var paidApps = DbContext.Appointments
         .Where(a => a.IsPaid && a.Status != "Cancelled")
-        .Sum(a => (decimal?)a.GroomingService.Price) ?? 0m;
+        .Select(a => a.GroomingService != null ? a.GroomingService.Price : 0m)
+        .ToList();
 
+    var totalRevenue = paidApps.Sum();
     var totalAppointments = DbContext.Appointments.Count();
     var paidAppointments = DbContext.Appointments.Count(a => a.IsPaid);
 }
+
 <div class="d-flex align-items-center justify-content-center" style="min-height: 75vh;">
     <div class="container py-4">
         <!-- Centered Header -->
