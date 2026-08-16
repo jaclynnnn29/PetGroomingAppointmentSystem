@@ -2,17 +2,22 @@
 
 @{
     var currentTheme = "light";
+    var isAdmin = false;
+
     if (User.Identity?.IsAuthenticated == true)
     {
         var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
         var member = DbContext.Members.FirstOrDefault(m => m.Email == email);
+
         if (!string.IsNullOrEmpty(member?.PreferredTheme))
         {
             currentTheme = member.PreferredTheme;
         }
+
+        var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? User.FindFirst("Role")?.Value;
+        isAdmin = User.IsInRole("Admin") || roleClaim == "Admin" || member?.Role == "Admin";
     }
 }
-
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="@currentTheme">
 <head>
@@ -27,43 +32,55 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-body border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand fw-bold text-primary" asp-controller="Home" asp-action="Index">🐾 PetGroomingSystem</a>
+                <a class="navbar-brand fw-bold text-primary" asp-controller="@(isAdmin ? "Admin" : "Home")" asp-action="Index">🐾 PetGroomingSystem</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-body" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-body" asp-controller="Booking" asp-action="Index">Services</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-body" asp-controller="Booking" asp-action="Create">Book Appointment</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-body" asp-controller="Booking" asp-action="Appointments">My Appointments</a>
-                        </li>
-
-                       
-                        @if (User.Identity?.IsAuthenticated == true)
+                        @if (isAdmin)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-body"
-                                   asp-controller="Pet"
-                                   asp-action="Index">
-                                    My Pets
-                                </a>
+                                <a class="nav-link text-body" asp-controller="Admin" asp-action="Index">Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-body" asp-controller="Admin" asp-action="Appointments">Appointments</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-body" asp-controller="Admin" asp-action="Services">Grooming Services</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-body" asp-controller="Admin" asp-action="Users">User Management</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-body" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-body" asp-controller="Booking" asp-action="Index">Services</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-body" asp-controller="Booking" asp-action="Create">Book Appointment</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-body" asp-controller="Booking" asp-action="Appointments">My Appointments</a>
+                            </li>
+
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-body" asp-controller="Pet" asp-action="Index">My Pets</a>
+                                </li>
+                            }
+
+                            <li class="nav-item">
+                                <a class="nav-link text-body" asp-controller="Home" asp-action="Privacy">Privacy</a>
                             </li>
                         }
 
-                        <li class="nav-item">
-                            <a class="nav-link text-body" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-
-                        @* 3. NEW: Add Dark Mode toggle button *@
                         <li class="nav-item ms-auto">
                             <button id="darkModeToggle" type="button" class="btn btn-sm btn-outline-secondary rounded-pill nav-link px-2">
                                 @(currentTheme == "dark" ? "☀️ Light Mode" : "🌙 Dark Mode")
@@ -73,54 +90,32 @@
                         @if (User.Identity?.IsAuthenticated != true)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-body"
-                                   asp-controller="Account"
-                                   asp-action="Login">
-                                    Login
-                                </a>
+                                <a class="nav-link text-body" asp-controller="Account" asp-action="Login">Login</a>
                             </li>
-
                             <li class="nav-item">
-                                <a class="nav-link text-body"
-                                   asp-controller="Account"
-                                   asp-action="Register">
-                                    Register
-                                </a>
+                                <a class="nav-link text-body" asp-controller="Account" asp-action="Register">Register</a>
                             </li>
                         }
-
-                        @if (User.Identity?.IsAuthenticated == true)
+                        else
                         {
-                            @* 4. NEW: Add username greeting before Logout *@
                             <li class="nav-item">
                                 <span class="nav-link text-primary fw-bold">
                                     👋 Hello, @(User.FindFirst("FullName")?.Value ?? User.Identity?.Name)!
                                 </span>
                             </li>
-
-                            <form asp-controller="Account"
-                                  asp-action="Logout"
-                                  method="post"
-                                  class="d-inline">
-
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                 @Html.AntiForgeryToken()
-
-                                <button type="submit"
-                                        class="btn btn-link nav-link">
-                                    Logout
-                                </button>
-
+                                <button type="submit" class="btn btn-link nav-link">Logout</button>
                             </form>
                         }
-
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    
+
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main" class="pb-5 mb-5">
             @RenderBody()
         </main>
     </div>
@@ -135,26 +130,25 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    @* 5. NEW: Add Theme toggle script before </body> *@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const toggleBtn = document.getElementById("darkModeToggle");
-            const htmlElement = document.documentElement;
-            if (!toggleBtn) return;
+        const toggleBtn = document.getElementById("darkModeToggle");
+        const htmlElement = document.documentElement;
+        if (!toggleBtn) return;
 
-            toggleBtn.addEventListener("click", function () {
-                const isDark = htmlElement.getAttribute("data-bs-theme") === "dark";
-                const newTheme = isDark ? "light" : "dark";
+        toggleBtn.addEventListener("click", function () {
+        const isDark = htmlElement.getAttribute("data-bs-theme") === "dark";
+        const newTheme = isDark ? "light" : "dark";
 
-                htmlElement.setAttribute("data-bs-theme", newTheme);
-                toggleBtn.innerHTML = newTheme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
+        htmlElement.setAttribute("data-bs-theme", newTheme);
+        toggleBtn.innerHTML = newTheme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
 
-                fetch('/Account/SavePreferences', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `theme=${encodeURIComponent(newTheme)}`
-                });
-            });
+        fetch('/Account/SavePreferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `theme=${encodeURIComponent(newTheme)}`
+        });
+        });
         });
     </script>
 

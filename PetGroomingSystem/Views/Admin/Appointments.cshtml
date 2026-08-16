@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Manage Appointments";
 }
-
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="text-body fw-bold m-0">Manage Appointments</h2>
@@ -28,6 +27,7 @@
                                 <th class="py-3">Time Slot</th>
                                 <th class="py-3">Member Email</th>
                                 <th class="py-3">Pet Name</th>
+                                <th class="py-3">Pet Type</th>
                                 <th class="py-3">Service</th>
                                 <th class="py-3">Status</th>
                                 <th class="py-3 text-center pe-3">Actions</th>
@@ -40,7 +40,8 @@
                                     <td class="ps-3 fw-semibold">@item.Date.ToString("yyyy-MM-dd")</td>
                                     <td>@item.TimeSlot</td>
                                     <td><span class="text-body-secondary">@item.MemberEmail</span></td>
-                                    <td class="fw-medium">@item.PetName (@item.PetType)</td>
+                                    <td class="fw-medium">@item.PetName</td>
+                                    <td>@item.PetType</td>
                                     <td>@item.GroomingService?.Name</td>
                                     <td>
                                         @if (item.Status == "Cancelled")

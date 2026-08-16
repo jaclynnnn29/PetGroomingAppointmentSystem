@@ -156,8 +156,8 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
         var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
 
         var appointment = await db.Appointments
-            .Include(a => a.GroomingService)
-            .FirstOrDefaultAsync(a => a.Id == id && a.MemberEmail == email);
+        .Include(a => a.GroomingService)
+        .FirstOrDefaultAsync(a => a.Id == id);
 
         if (appointment != null && appointment.Status != "Cancelled")
         {

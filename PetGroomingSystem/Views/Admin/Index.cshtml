@@ -1,65 +1,50 @@
-﻿@{
-    ViewData["Title"] = "Admin Dashboard";
-}
+﻿@inject PetGroomingSystem.Models.ApplicationDbContext DbContext
 
+@{
+    ViewData["Title"] = "Admin Dashboard";
+
+    // Calculate revenue and booking metrics for Member 3 reporting requirement
+    var totalRevenue = DbContext.Appointments
+        .Where(a => a.IsPaid && a.Status != "Cancelled")
+        .Sum(a => (decimal?)a.GroomingService.Price) ?? 0m;
+
+    var totalAppointments = DbContext.Appointments.Count();
+    var paidAppointments = DbContext.Appointments.Count(a => a.IsPaid);
+}
 <div class="d-flex align-items-center justify-content-center" style="min-height: 75vh;">
     <div class="container py-4">
         <!-- Centered Header -->
-        <div class="text-center mb-5">
+        <div class="text-center mb-4">
             <h1 class="display-5 fw-bold mb-2">Admin Dashboard</h1>
             <p class="text-secondary lead mb-3">Overview and management tools for system operations.</p>
             <span class="badge bg-primary px-3 py-2 fs-6">System Administrator</span>
         </div>
 
-        <!-- Centered Cards Grid -->
-        <div class="row g-4 justify-content-center">
-            <!-- Appointments Card -->
+        <!-- NEW: Revenue & Sales Reporting Metrics (Member 3 Requirement) -->
+        <div class="row g-4 justify-content-center mb-4">
             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-3">
-                    <div class="card-body d-flex flex-column text-center p-4">
-                        <div class="display-6 mb-3">📅</div>
-                        <h5 class="card-title fw-bold mb-2">Appointments</h5>
-                        <p class="card-text text-secondary mb-4 flex-grow-1">
-                            View, confirm, or update client grooming appointments and status records.
-                        </p>
-                        <a asp-controller="Admin" asp-action="Appointments" class="btn btn-primary w-100 py-2 fw-semibold">
-                            Manage Appointments
-                        </a>
+                <div class="card border-0 shadow-sm bg-success text-white h-100">
+                    <div class="card-body p-4 text-center">
+                        <h6 class="text-uppercase fw-semibold mb-1 opacity-75">Total Revenue</h6>
+                        <h2 class="display-6 fw-bold mb-0">RM @totalRevenue.ToString("N2")</h2>
                     </div>
                 </div>
             </div>
-
-            <!-- Grooming Services Card -->
             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-3">
-                    <div class="card-body d-flex flex-column text-center p-4">
-                        <div class="display-6 mb-3">✂️</div>
-                        <h5 class="card-title fw-bold mb-2">Grooming Services</h5>
-                        <p class="card-text text-secondary mb-4 flex-grow-1">
-                            Configure grooming packages, adjust pricing, and modify service details.
-                        </p>
-                        <a asp-controller="Admin" asp-action="Services" class="btn btn-primary w-100 py-2 fw-semibold">
-                            Manage Services
-                        </a>
+                <div class="card border-0 shadow-sm bg-primary text-white h-100">
+                    <div class="card-body p-4 text-center">
+                        <h6 class="text-uppercase fw-semibold mb-1 opacity-75">Total Bookings</h6>
+                        <h2 class="display-6 fw-bold mb-0">@totalAppointments</h2>
                     </div>
                 </div>
             </div>
-
-            <!-- User Management Card -->
             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-3">
-                    <div class="card-body d-flex flex-column text-center p-4">
-                        <div class="display-6 mb-3">👥</div>
-                        <h5 class="card-title fw-bold mb-2">User Management</h5>
-                        <p class="card-text text-secondary mb-4 flex-grow-1">
-                            Review registered members, unlock locked accounts, and manage pet records.
-                        </p>
-                        <a asp-controller="Admin" asp-action="Users" class="btn btn-primary w-100 py-2 fw-semibold">
-                            Manage Users
-                        </a>
+                <div class="card border-0 shadow-sm bg-info text-white h-100">
+                    <div class="card-body p-4 text-center">
+                        <h6 class="text-uppercase fw-semibold mb-1 opacity-75">Paid Bookings</h6>
+                        <h2 class="display-6 fw-bold mb-0">@paidAppointments</h2>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </div></div>
