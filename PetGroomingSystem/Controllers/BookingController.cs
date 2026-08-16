@@ -4,11 +4,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PetGroomingSystem.Models;
 using PetGroomingSystem.ViewModels;
-using PetGroomingSystem.Services; // <-- Added this using statement
+using PetGroomingSystem.Services;
 
 namespace PetGroomingSystem.Controllers;
 
-// <-- Added IEmailService to the constructor injection
 public class BookingController(ApplicationDbContext db, IEmailService emailService) : Controller
 {
     // GET: Booking/Index (Services Catalog)
@@ -29,10 +28,10 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
         return View();
     }
 
-    // POST: Booking/Create (Processes Appointment - Replaces Checkout)
+    // POST: Booking/Create (Processes Appointment - Saves & Redirects to Payment)
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Create(BookingAppointmentVM vm) // <-- Changed to async Task<IActionResult>
+    public async Task<IActionResult> Create(BookingAppointmentVM vm)
     {
         if (ModelState.IsValid)
         {
@@ -51,7 +50,7 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
             };
 
             db.Appointments.Add(appointment);
-            await db.SaveChangesAsync(); 
+            await db.SaveChangesAsync();
 
             // ==========================================
             // SEND THE CONFIRMATION EMAIL
@@ -69,7 +68,10 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
             // Send the email in the background
             await emailService.SendEmailAsync(userEmail, subject, body);
 
-            return RedirectToAction("BookingComplete", new { id = appointment.Id });
+            // ==========================================
+            // REDIRECT TO STRIPE PAYMENT CHECKOUT
+            // ==========================================
+            return RedirectToAction("CreateCheckoutSession", "Payment", new { appointmentId = appointment.Id });
         }
 
         ViewBag.ServicesList = new SelectList(db.GroomingServices, "Id", "Name", vm.ServiceId);

@@ -3,6 +3,9 @@
 <h2 class="mb-4">Book a Pet Grooming Appointment</h2>
 
 <form asp-action="Create" method="post" class="col-md-6">
+    <!-- Displays any general model validation errors -->
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
     <!-- Service Selection -->
     <div class="mb-3">
         <label asp-for="ServiceId" class="form-label fw-bold">Select Service</label>

@@ -17,7 +17,7 @@ namespace PetGroomingSystem.Controllers
             _config = config;
         }
 
-        [HttpPost]
+        [HttpGet]
         public IActionResult CreateCheckoutSession(int appointmentId)
         {
             var appointment = _context.Appointments
