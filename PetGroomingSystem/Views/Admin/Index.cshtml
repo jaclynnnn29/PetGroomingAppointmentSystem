@@ -107,24 +107,31 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Revenue Doughnut Chart
+            // Inside Views/Admin/Index.cshtml
             const pieCtx = document.getElementById('revenuePieChart').getContext('2d');
             new Chart(pieCtx, {
-                type: 'doughnut',
+                 type: 'doughnut',
                 data: {
-                    labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(serviceLabels)),
-                    datasets: [{
-                        data: [@(ViewBag.BasicGroomingRevenue ?? 0), @(ViewBag.FullGroomingRevenue ?? 0)],
-                        backgroundColor: ['#198754', '#0d6efd', '#ffc107', '#0dcaf0', '#dc3545']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom' }
-                    }
-                }
-            });
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(serviceLabels)),
+                datasets: [{
+                data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(serviceTotals)),
+                backgroundColor: [
+                    '#198754', // Green  (1st Service: Basic Grooming)
+                    '#0d6efd', // Blue   (2nd Service: De-Shedding & Dental)
+                    '#fd7e14', // Orange (3rd Service: Medicated Bath)
+                    '#6f42c1', // Purple (4th Service: Premium Spa)
+                 '#0dcaf0'  // Cyan
+               ]
+          }]
+          },
+         options: {
+         responsive: true,
+         maintainAspectRatio: false,
+         plugins: {
+            legend: { position: 'bottom' }
+           }
+         }
+     });
 
             // Booking Status Bar Chart
             const barCtx = document.getElementById('bookingBarChart').getContext('2d');
