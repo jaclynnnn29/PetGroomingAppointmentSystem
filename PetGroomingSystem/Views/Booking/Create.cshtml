@@ -1,4 +1,10 @@
 ﻿@model PetGroomingSystem.ViewModels.BookingAppointmentVM
+@inject PetGroomingSystem.Models.ApplicationDbContext DbContext
+
+@{
+    // Retrieve all services from the database to map IDs to Prices
+    var servicesList = DbContext.GroomingServices.ToList();
+}
 
 <h2 class="mb-4">Book a Pet Grooming Appointment</h2>
 
@@ -9,8 +15,14 @@
     <!-- Service Selection -->
     <div class="mb-3">
         <label asp-for="ServiceId" class="form-label fw-bold">Select Service</label>
-        <select asp-for="ServiceId" id="ServiceSelect" asp-items="ViewBag.ServicesList" class="form-select">
-            <option value="">-- Choose Service --</option>
+        <select asp-for="ServiceId" id="ServiceSelect" class="form-select">
+            <option value="" data-price="0">-- Choose Service --</option>
+            @foreach (var service in servicesList)
+            {
+                <option value="@service.Id" data-price="@service.Price">
+                    @service.Name
+                </option>
+            }
         </select>
         <span asp-validation-for="ServiceId" class="text-danger"></span>
     </div>
@@ -41,7 +53,6 @@
     <!-- Date Selection -->
     <div class="mb-3">
         <label asp-for="AppointmentDate" class="form-label fw-bold">Appointment Date</label>
-        <!-- We add id="AppointmentDate" so our JavaScript can detect when it changes -->
         <input asp-for="AppointmentDate" id="AppointmentDate" class="form-control" type="date" />
         <span asp-validation-for="AppointmentDate" class="text-danger"></span>
     </div>
@@ -50,7 +61,6 @@
     <div class="mb-3">
         <label class="form-label fw-bold">Available Time Slots</label>
 
-        <!-- This empty div is where our JavaScript will generate the buttons -->
         <div id="timeSlotContainer" class="d-flex flex-wrap gap-2 mt-2">
             <div class="alert alert-secondary w-100 text-center mb-0 py-2">
                 📅 Please select a date above to see available time slots.
@@ -88,38 +98,24 @@
 
     <script>
         $(document).ready(function () {
-            // Fetch service details from the server to get accurate prices without changing the controller
-            var servicePrices = {};
-
-            $.get('/Booking/Index', function (htmlData) {
-                // Parse the prices directly from the service cards if returning partial HTML, or JSON
-                var parsedPrices = {};
-                $(htmlData).find('.card').each(function () {
-                    var title = $(this).find('.card-title').text().trim();
-                    var priceText = $(this).find('.text-success').text();
-                    var match = priceText.match(/RM\s*([\d\.]+)/i);
-                    if (match) {
-                        parsedPrices[title] = match[1];
-                    }
-                });
-                servicePrices = parsedPrices;
-                updatePriceDisplay();
-            });
-
+            // Function to update dynamic price from selected option's data-price attribute
             function updatePriceDisplay() {
-                var selectedText = $('#ServiceSelect option:selected').text().trim();
-                
-                if (servicePrices[selectedText]) {
-                    var price = parseFloat(servicePrices[selectedText]).toFixed(2);
-                    $('#displayPrice').text('RM ' + price);
-                    $('#submitBtn').text('💳 Confirm & Pay (RM ' + price + ')');
+                var selectedOption = $('#ServiceSelect option:selected');
+                var price = parseFloat(selectedOption.data('price')) || 0;
+
+                if (price > 0) {
+                    var formattedPrice = 'RM ' + price.toFixed(2);
+                    $('#displayPrice').text(formattedPrice);
+                    $('#submitBtn').text('💳 Confirm & Pay (' + formattedPrice + ')');
                 } else {
                     $('#displayPrice').text('RM 0.00');
                     $('#submitBtn').text('💳 Confirm & Pay');
                 }
             }
 
+            // Run on change & on page load (handles pre-filled serviceId query parameters)
             $('#ServiceSelect').change(updatePriceDisplay);
+            updatePriceDisplay();
 
             // When the user changes the Date input...
             $('#AppointmentDate').change(function () {
@@ -133,7 +129,6 @@
 
                 container.html('<div class="text-body-secondary">Searching for available slots...</div>');
 
-                // Call our controller method
                 $.get('/Booking/GetAvailableTimeSlots', { date: selectedDate }, function (slots) {
                     container.empty();
 
@@ -142,9 +137,8 @@
                         return;
                     }
 
-                    // Loop through available slots and generate clickable buttons
                     $.each(slots, function (index, slot) {
-                        var safeId = slot.replace(/[: ]/g, ''); // Removes spaces/colons for HTML IDs
+                        var safeId = slot.replace(/[: ]/g, '');
 
                         var html = `
                             <div>
