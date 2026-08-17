@@ -19,6 +19,15 @@ namespace PetGroomingSystem.Controllers
         // Action: Dashboard Main Page
         public IActionResult Index()
         {
+            // Debugged: Changed _db to _context, a.Service to a.GroomingService, and added null handling for Sum()
+            ViewBag.BasicGroomingRevenue = _context.Appointments
+                .Where(a => a.GroomingService != null && a.GroomingService.Name == "Basic Grooming" && a.IsPaid)
+                .Sum(a => (decimal?)a.GroomingService.Price) ?? 0m;
+
+            ViewBag.FullGroomingRevenue = _context.Appointments
+                .Where(a => a.GroomingService != null && a.GroomingService.Name == "Full Grooming" && a.IsPaid)
+                .Sum(a => (decimal?)a.GroomingService.Price) ?? 0m;
+
             return View();
         }
 

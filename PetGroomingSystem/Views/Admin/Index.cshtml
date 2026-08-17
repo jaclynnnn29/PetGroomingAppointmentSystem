@@ -11,10 +11,25 @@
 
     var totalRevenue = paidApps.Sum();
     var totalAppointments = DbContext.Appointments.Count();
-    var paidAppointments = DbContext.Appointments.Count(a => a.IsPaid);
+    var paidAppointments = DbContext.Appointments.Count(a => a.IsPaid && a.Status != "Cancelled");
+    var pendingAppointments = DbContext.Appointments.Count(a => !a.IsPaid && a.Status != "Cancelled");
+    var cancelledAppointments = DbContext.Appointments.Count(a => a.Status == "Cancelled");
+
+    // Dynamic Chart Data: Revenue per Service
+    var serviceRevenueData = DbContext.Appointments
+        .Where(a => a.IsPaid && a.Status != "Cancelled" && a.GroomingService != null)
+        .GroupBy(a => a.GroomingService.Name)
+        .Select(g => new { 
+            ServiceName = g.Key, 
+            Total = g.Sum(x => x.GroomingService.Price) 
+        }).ToList();
+
+    var serviceLabels = serviceRevenueData.Select(s => s.ServiceName).ToList();
+    var serviceTotals = serviceRevenueData.Select(s => s.Total).ToList();
 }
-        <div class="d-flex align-items-center justify-content-center" style="min-height: 75vh;">
-        <div class="container py-4">
+
+<div class="d-flex align-items-center justify-content-center" style="min-height: 75vh;">
+    <div class="container py-4">
         <!-- Centered Header -->
         <div class="text-center mb-4">
             <h1 class="display-5 fw-bold mb-2">Admin Dashboard</h1>
@@ -22,9 +37,9 @@
             <span class="badge bg-primary px-3 py-2 fs-6">System Administrator</span>
         </div>
 
-        <!-- NEW: Revenue & Sales Reporting Metrics (Clickable) -->
+        <!-- Metric Cards -->
         <div class="row g-4 justify-content-center mb-4">
-            <!-- Total Revenue Card -> Filters to Revenue Report -->
+            <!-- Total Revenue Card -->
             <div class="col-md-4">
                 <a asp-controller="Admin" asp-action="Appointments" asp-route-filter="revenue" class="text-decoration-none">
                     <div class="card border-0 shadow-sm bg-success text-white h-100">
@@ -36,7 +51,7 @@
                 </a>
             </div>
 
-            <!-- Total Bookings Card -> Displays All Bookings -->
+            <!-- Total Bookings Card -->
             <div class="col-md-4">
                 <a asp-controller="Admin" asp-action="Appointments" asp-route-filter="all" class="text-decoration-none">
                     <div class="card border-0 shadow-sm bg-primary text-white h-100">
@@ -48,7 +63,7 @@
                 </a>
             </div>
 
-            <!-- Paid Bookings Card -> Filters to Paid Bookings Only -->
+            <!-- Paid Bookings Card -->
             <div class="col-md-4">
                 <a asp-controller="Admin" asp-action="Appointments" asp-route-filter="paid" class="text-decoration-none">
                     <div class="card border-0 shadow-sm bg-info text-white h-100">
@@ -60,4 +75,80 @@
                 </a>
             </div>
         </div>
-    </div></div>
+
+        <!-- ONSCREEN CHARTS SECTION -->
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                        <h5 class="fw-bold mb-3">Revenue Breakdown by Service</h5>
+                        <div style="height: 260px; position: relative;">
+                            <canvas id="revenuePieChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                        <h5 class="fw-bold mb-3">Booking Status Overview</h5>
+                        <div style="height: 260px; position: relative;">
+                            <canvas id="bookingBarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Revenue Doughnut Chart
+            const pieCtx = document.getElementById('revenuePieChart').getContext('2d');
+            new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(serviceLabels)),
+                    datasets: [{
+                        data: [@(ViewBag.BasicGroomingRevenue ?? 0), @(ViewBag.FullGroomingRevenue ?? 0)],
+                        backgroundColor: ['#198754', '#0d6efd', '#ffc107', '#0dcaf0', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Booking Status Bar Chart
+            const barCtx = document.getElementById('bookingBarChart').getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Paid', 'Pending', 'Cancelled'],
+                    datasets: [{
+                        label: 'Bookings',
+                        data: [@paidAppointments, @pendingAppointments, @cancelledAppointments],
+                        backgroundColor: ['#0dcaf0', '#ffc107', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        });
+    </script>
+}
