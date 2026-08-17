@@ -10,7 +10,7 @@ namespace PetGroomingSystem.Controllers;
 
 public class BookingController(ApplicationDbContext db, IEmailService emailService) : Controller
 {
-    // GET: Booking/Index (Services Catalog)
+    // GET: Booking/Index 
     public IActionResult Index()
     {
         var m = db.GroomingServices.ToList();
@@ -20,7 +20,7 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
         return View(m);
     }
 
-    // GET: Booking/Create (Renders Booking Form)
+    // GET: Booking/Create 
     [Authorize]
     public IActionResult Create(int? serviceId)
     {
@@ -126,12 +126,9 @@ public class BookingController(ApplicationDbContext db, IEmailService emailServi
                   .OrderByDescending(a => a.Id)
                   .ToList();
 
-
-
         return View(m);
     }
 
-    // GET: Booking/AppointmentDetail (Replaces OrderDetail)
     // GET: Booking/AppointmentDetail (Replaces OrderDetail)
     [Authorize]
     public IActionResult AppointmentDetail(int id)
